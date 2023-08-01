@@ -3,7 +3,7 @@ package work.tutor.web.tutor.tutorendpoints;
 
 import work.tutor.dto.ResponseObject;
 import work.tutor.dto.tutor.*;
-import work.tutor.service.tutor.UserService;
+import work.tutor.service.UserService;
 import work.util.mapstruct.UserMapper;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -7,7 +7,7 @@ import work.tutor.dto.tutor.RequestUserDto;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2023-08-01T20:22:35+0200",
+    date = "2023-08-01T21:29:27+0200",
     comments = "version: 1.5.1.Final, compiler: javac, environment: Java 17.0.8 (Amazon.com Inc.)"
 )
 @Component

@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   app:
-    image: openjdk:11-jre-slim
+    image: openjdk:17
     container_name: tutorio-backend
     ports:
       - "8085:8085"
@@ -22,7 +22,7 @@ services:
       timeout: 10s
       retries: 2
     networks:
-      - tutorio-backend
+      - leisurelink-backend
 
   postgres:
     image: postgres:13
@@ -32,7 +32,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: codepred
+      POSTGRES_DB: leisurelink
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
     volumes:
       - ./init-db:/docker-entrypoint-initdb.d
@@ -43,7 +43,7 @@ services:
       timeout: 10s
       retries: 2
     networks:
-      - tutorio-backend
+      - leisurelink-backend
 
 volumes:
   postgres-data:

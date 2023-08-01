@@ -1,4 +1,4 @@
-package work.tutor.service.tutor;
+package work.tutor.service;
 
 import work.tutor.domain.User;
 import work.tutor.dto.ResponseObject;

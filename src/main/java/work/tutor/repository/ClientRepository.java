@@ -1,5 +1,7 @@
 package work.tutor.repository;
 
+import org.checkerframework.checker.nullness.Opt;
+import org.mapstruct.control.MappingControl;
 import work.tutor.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +16,5 @@ import java.util.Optional;
 
 @Repository
 public interface ClientRepository extends JpaRepository<User, Integer> {
-
 
 }
