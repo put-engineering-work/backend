@@ -2,13 +2,13 @@ version: "3.3"
 services:
   app:
     image: openjdk:17
-    container_name: leisurelink-backend
+    container_name: leisure-link-backend
     ports:
       - "8085:8085"
     volumes:
       - ./target/leisure-link.jar:/target/leisure-link.jar
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/codepred
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/leisurelink
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: admin
       SPRING_JPA_DATABASE-PLATFORM: org.hibernate.dialect.PostgreSQLDialect
