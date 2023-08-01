@@ -21,8 +21,7 @@ services:
       interval: 1m
       timeout: 10s
       retries: 2
-#    networks:
-#      - leisurelink-backend
+
 
   postgres:
     image: postgres:13
@@ -34,16 +33,12 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: leisurelink
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
-    volumes:
-      - ./init-db:/docker-entrypoint-initdb.d
-      - postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: pg_isready -U postgres
       interval: 1m
       timeout: 10s
       retries: 2
-#    networks:
-#      - leisurelink-backend
+
 
 volumes:
   postgres-data:
