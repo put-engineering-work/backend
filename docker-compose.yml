@@ -21,8 +21,8 @@ services:
       interval: 1m
       timeout: 10s
       retries: 2
-    networks:
-      - leisurelink-backend
+#    networks:
+#      - leisurelink-backend
 
   postgres:
     image: postgres:13
@@ -42,8 +42,8 @@ services:
       interval: 1m
       timeout: 10s
       retries: 2
-    networks:
-      - leisurelink-backend
+#    networks:
+#      - leisurelink-backend
 
 volumes:
   postgres-data:
