@@ -1,3 +1,3 @@
-CREATE DATABASE leasurelink;
+CREATE DATABASE leisurelink;
 create user postgres with encrypted password 'admin';
-grant all privileges on database leasurelink to postgres;
+grant all privileges on database leisurelink to postgres;
