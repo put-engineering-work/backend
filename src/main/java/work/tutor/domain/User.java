@@ -37,7 +37,9 @@ public class User {
 
     private Date codeTimeGenerated;
 
-
-
+    @OneToOne(fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            mappedBy = "user")
+    private UserDetails userDetails;
 }
 
