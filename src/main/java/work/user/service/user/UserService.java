@@ -1,7 +1,7 @@
-package work.tutor.service;
+package work.user.service.user;
 
-import work.tutor.domain.User;
-import work.tutor.dto.ResponseObject;
+import work.user.domain.User;
+import work.user.dto.ResponseObject;
 
 import javax.servlet.http.HttpServletRequest;
 

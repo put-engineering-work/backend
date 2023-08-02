@@ -1,10 +1,10 @@
-package work.tutor.service;
+package work.user.service.user;
 
-import work.tutor.domain.AppUserRole;
-import work.tutor.domain.User;
-import work.tutor.dto.ResponseObject;
-import work.tutor.dto.tutor.TutorToken;
-import work.tutor.repository.UserRepository;
+import work.user.domain.AppUserRole;
+import work.user.domain.User;
+import work.user.dto.ResponseObject;
+import work.user.dto.user.TutorToken;
+import work.user.repository.UserRepository;
 import work.util.exception.AuthenticationException;
 import work.util.exception.UserNotFoundException;
 import work.util.secutity.JwtTokenProvider;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 
@@ -43,9 +44,9 @@ public class UserServiceBean implements UserService {
             user.setIsActivated(Boolean.FALSE);
             String code = RandomStringUtils.randomAlphanumeric(30, 30);
             user.setCode(code);
-            user.setAppUserRoles(AppUserRole.ROLE_TUTOR);
+            user.setAppUserRoles(AppUserRole.ROLE_USER);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            user.setCodeTimeGenerated(Date.from(Instant.now()));
+            user.setCodeTimeGenerated(ZonedDateTime.now());
             userRepository.save(user);
             var response = new ResponseObject(HttpStatus.ACCEPTED, "USER_CREATED", null);
             log.debug("TutorService ==> createUser() - end: tutor = {}", response);
@@ -100,7 +101,7 @@ public class UserServiceBean implements UserService {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
                 String code = RandomStringUtils.randomAlphanumeric(30, 30);
                 tutorLoginData.get().setCode(code);
-                tutorLoginData.get().setCodeTimeGenerated(Date.from(Instant.now()));
+                tutorLoginData.get().setCodeTimeGenerated(ZonedDateTime.now());
                 tutorLoginData.get().setPassword(passwordEncoder.encode(user.getPassword()));
 
                 userRepository.save(tutorLoginData.get());
@@ -137,7 +138,7 @@ public class UserServiceBean implements UserService {
         } else {
             String code = RandomStringUtils.randomAlphanumeric(30, 30);
             tutor.get().setCode(code);
-            tutor.get().setCodeTimeGenerated(Date.from(Instant.now()));
+            tutor.get().setCodeTimeGenerated(ZonedDateTime.now());
             userRepository.save(tutor.get());
 
             log.debug("TutorService ==> sendEmailToPasswordReset() - end:  HttpStatus = {}, message = {}, token = {}", HttpStatus.ACCEPTED, "EMAIL_SENT", null);
@@ -158,7 +159,7 @@ public class UserServiceBean implements UserService {
         if (hours < 4) {
             String newCode = RandomStringUtils.randomAlphanumeric(30, 30);
             tutor.get().setCode(newCode);
-            tutor.get().setCodeTimeGenerated(Date.from(Instant.now()));
+            tutor.get().setCodeTimeGenerated(ZonedDateTime.now());
             userRepository.save(tutor.get());
             return new ResponseObject(HttpStatus.ACCEPTED, newCode, null);
         } else {

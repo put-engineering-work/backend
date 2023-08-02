@@ -1,6 +1,6 @@
 package work.util.exception;
 
-import work.tutor.dto.ResponseObject;
+import work.user.dto.ResponseObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;

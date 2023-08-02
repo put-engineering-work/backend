@@ -1,8 +1,8 @@
-package work.tutor.web.tutor.tutorendpoints;
+package work.user.web.user;
 
 
-import work.tutor.dto.ResponseObject;
-import work.tutor.dto.tutor.*;
+import work.user.dto.ResponseObject;
+import work.user.dto.user.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 
-public interface TutorController {
+public interface UserController {
 
     @PostMapping("/signup")
-    @Operation(summary = "Create a new tutor account")
+    @Operation(summary = "Create a new user account")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Email sent for verification"),
             @ApiResponse(responseCode = "202", description = "Verification code was sent once again"),
@@ -27,9 +27,9 @@ public interface TutorController {
     ResponseObject tutorRegisterAccount(@RequestBody @Valid RequestUserDto requestUserDto);
 
     @GetMapping("/confirm/{code}")
-    @Operation(summary = "Endpoint to confirm tutor registration")
+    @Operation(summary = "Endpoint to confirm user registration")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Tutor registration confirmed"),
+            @ApiResponse(responseCode = "200", description = "User registration confirmed"),
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "409", description = "Conflict")
     })
@@ -38,17 +38,17 @@ public interface TutorController {
 
     // LOGIN
     @PostMapping("/signin")
-    @Operation(summary = "Endpoint to login tutor", hidden = true)
+    @Operation(summary = "Endpoint to login user", hidden = true)
     @ApiResponses(value = {//
             @ApiResponse(responseCode = "202", description = "Login successful"), //
-            @ApiResponse(responseCode = "400", description = "Bad Request: Tutor was not registered"), //
+            @ApiResponse(responseCode = "400", description = "Bad Request: User was not registered"), //
             @ApiResponse(responseCode = "401", description = "Wrong data supplied"), //
             @ApiResponse(responseCode = "422", description = "Verification code was sent once again"),
     })
     ResponseObject login(@RequestBody RequestUserDto userLoginDto);
 
     @PostMapping("/resetpassword/{email}")
-    @Operation(summary = "Endpoint to reset tutor password")
+    @Operation(summary = "Endpoint to reset user password")
     @ApiResponses(value = {//
             @ApiResponse(responseCode = "400", description = "Something went wrong"), //
             @ApiResponse(responseCode = "422", description = "Invalid username/password supplied")})
@@ -71,7 +71,7 @@ public interface TutorController {
     ResponseObject confirmPasswordResetting(@RequestBody PasswordResetDTO passwordResetDTO);
 
     @PutMapping("/reset-password")
-    @PreAuthorize("hasRole('ROLE_TUTOR')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "Reset password", description = "Reset user password.")
     @ApiResponses(value={
             @ApiResponse(responseCode = "202", description = "PASSWORD_SUCCESSFULLY_UPDATED"),

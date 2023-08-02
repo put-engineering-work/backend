@@ -1,8 +1,8 @@
-package work.tutor.repository;
+package work.user.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import work.tutor.domain.User;
+import work.user.domain.User;
 
 import java.util.Optional;
 

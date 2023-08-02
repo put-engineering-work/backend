@@ -2,8 +2,8 @@ package work.util.mapstruct;
 
 
 import org.mapstruct.Mapper;
-import work.tutor.domain.User;
-import work.tutor.dto.tutor.RequestUserDto;
+import work.user.domain.User;
+import work.user.dto.user.RequestUserDto;
 
 
 @Mapper(componentModel = "spring")

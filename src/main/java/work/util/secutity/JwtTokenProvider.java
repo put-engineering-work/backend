@@ -1,6 +1,6 @@
 package work.util.secutity;
 
-import work.tutor.domain.AppUserRole;
+import work.user.domain.AppUserRole;
 import work.util.exception.AuthenticationException;
 import work.util.exception.CustomException;
 import io.jsonwebtoken.Claims;
