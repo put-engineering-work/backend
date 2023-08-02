@@ -1,11 +1,11 @@
-package work.tutor.domain;
+package work.user.domain;
 
 import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "event_image")
+@Table(name = "event_images")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
@@ -18,7 +18,7 @@ public class EventImage {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Event event;
 
     @Lob

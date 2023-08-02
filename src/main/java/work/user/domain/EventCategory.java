@@ -1,11 +1,13 @@
-package work.tutor.domain;
+package work.user.domain;
 
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "event_category")
+@Table(name = "event_categories")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
@@ -18,4 +20,7 @@ public class EventCategory {
     private Integer id;
 
     private String name;
+
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    Set<Event> events = new HashSet<>();
 }

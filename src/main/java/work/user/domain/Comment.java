@@ -1,12 +1,12 @@
-package work.tutor.domain;
+package work.user.domain;
 
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "comment")
+@Table(name = "comments")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
@@ -19,17 +19,16 @@ public class Comment {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Event event;
 
     private String content;
 
     private Integer grade;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date comment_date;
+    private ZonedDateTime commentDate;
 }

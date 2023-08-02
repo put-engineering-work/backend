@@ -1,4 +1,4 @@
-package work.tutor.domain;
+package work.user.domain;
 
 public enum AppMemberType {
 

@@ -1,9 +1,9 @@
-package work.tutor.domain;
+package work.user.domain;
 
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "user_details")
@@ -26,10 +26,10 @@ public class UserDetails {
 
     private String phoneNumber;
 
-    private Date birth_date;
+    private ZonedDateTime birthDate;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(nullable = false)
     private User user;
 }
 

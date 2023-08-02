@@ -1,15 +1,9 @@
-package work.tutor.domain;
+package work.user.domain;
 
 import lombok.*;
-import org.apache.commons.lang3.builder.ToStringExclude;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "users")
@@ -35,11 +29,9 @@ public class User {
 
     private String code;
 
-    private Date codeTimeGenerated;
+    private ZonedDateTime codeTimeGenerated;
 
-    @OneToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
-            mappedBy = "user")
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private UserDetails userDetails;
 }
 
