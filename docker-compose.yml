@@ -22,12 +22,11 @@ services:
       timeout: 10s
       retries: 2
 
-
   postgres:
     image: postgres:13
     container_name: postgres-db
     ports:
-      - "5555:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
@@ -38,11 +37,9 @@ services:
       interval: 1m
       timeout: 10s
       retries: 2
+    volumes:
+      - ./init-db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Mount the init.sql file
 
-
-volumes:
-  postgres-data:
 
 networks:
   leisure-link:
-
