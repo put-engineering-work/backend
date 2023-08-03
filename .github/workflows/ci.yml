@@ -14,8 +14,8 @@ jobs:
           distribution: 'adopt'
           cache: maven
 
-      - name: Validate, build and run tests
-        run: mvn --batch-mode --update-snapshots verify
+      - name: Compile and Build
+        run: mvn clean install --batch-mode --update-snapshots
 
       - name: Copy .jar
         run: mkdir build && cp target/*.jar build
