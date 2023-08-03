@@ -1,27 +1,26 @@
 name: Java CI
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
           java-version: '17'
           distribution: 'adopt'
           cache: maven
+
       - name: Validate, build and run tests
         run: mvn --batch-mode --update-snapshots verify
+
       - name: Copy .jar
         run: mkdir build && cp target/*.jar build
+
       - uses: actions/upload-artifact@v2
         with:
           name: leisure-link.jar
           path: build
-      - name: Javadocs
-        run: mvn javadoc:javadoc
-      - uses: actions/upload-artifact@v2
-        with:
-          name: docs
-          path: target/site/apidocs
