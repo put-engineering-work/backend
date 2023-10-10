@@ -3,7 +3,7 @@ package work.user.service.user;
 import work.user.domain.AppUserRole;
 import work.user.domain.User;
 import work.user.dto.ResponseObject;
-import work.user.dto.user.TutorToken;
+import work.user.dto.user.UserToken;
 import work.user.repository.UserRepository;
 import work.util.exception.AuthenticationException;
 import work.util.exception.UserNotFoundException;
@@ -73,7 +73,7 @@ public class UserServiceBean implements UserService {
                 String token = jwtTokenProvider.createToken(
                         user.getEmail(),
                         new LinkedList<>(Collections.singletonList(user.getAppUserRoles())));
-                var userToken = new TutorToken();
+                var userToken = new UserToken();
                 userToken.setToken(token);
                 userToken.setAppUserRole(user.getAppUserRoles());
                 log.debug("TutorService ==> confirmRegistration() - end: code = {}, message = {}, token = {}", HttpStatus.OK, "Registration confirmed", token);
@@ -91,36 +91,37 @@ public class UserServiceBean implements UserService {
 
     @Override
     public ResponseObject signin(User user) {
-        log.debug("TutorService ==> signin() - start: tutor = {}", user);
-        TutorToken userToken;
-        Optional<User> tutorLoginData = userRepository.findByEmail(user.getEmail());
-        if (tutorLoginData.isEmpty()) {
-            return new ResponseObject(HttpStatus.BAD_REQUEST, "TUTOR_WAS_NOT_REGISTERED", null);
-        } else if (!tutorLoginData.get().getIsActivated()) {
-            try {
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
-                String code = RandomStringUtils.randomAlphanumeric(30, 30);
-                tutorLoginData.get().setCode(code);
-                tutorLoginData.get().setCodeTimeGenerated(ZonedDateTime.now());
-                tutorLoginData.get().setPassword(passwordEncoder.encode(user.getPassword()));
-
-                userRepository.save(tutorLoginData.get());
-
-                return new ResponseObject(HttpStatus.UNPROCESSABLE_ENTITY, "VERIFICATION_CODE_WAS_SENT_ONCE_AGAIN", null);
-            } catch (Exception e) {
-                return new ResponseObject(HttpStatus.UNAUTHORIZED, "WRONG_DATA", null);
-            }
+        log.debug("TutorService ==> signin() - start: user = {}", user);
+        UserToken userToken;
+        Optional<User> userLoginData = userRepository.findByEmail(user.getEmail());
+        if (userLoginData.isEmpty()) {
+            return new ResponseObject(HttpStatus.BAD_REQUEST, "USER_WAS_NOT_REGISTERED", null);
         }
+//        else if (!tutorLoginData.get().getIsActivated()) {
+//            try {
+//                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+//                String code = RandomStringUtils.randomAlphanumeric(30, 30);
+//                tutorLoginData.get().setCode(code);
+//                tutorLoginData.get().setCodeTimeGenerated(ZonedDateTime.now());
+//                tutorLoginData.get().setPassword(passwordEncoder.encode(user.getPassword()));
+//
+//                userRepository.save(tutorLoginData.get());
+//
+//                return new ResponseObject(HttpStatus.UNPROCESSABLE_ENTITY, "VERIFICATION_CODE_WAS_SENT_ONCE_AGAIN", null);
+//            } catch (Exception e) {
+//                return new ResponseObject(HttpStatus.UNAUTHORIZED, "WRONG_DATA", null);
+//            }
+//        }
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
             String token = jwtTokenProvider.createToken(
-                    tutorLoginData.get().getEmail(),
-                    new LinkedList<>(Collections.singletonList(tutorLoginData.get().getAppUserRoles())));
-            userToken = new TutorToken();
+                    userLoginData.get().getEmail(),
+                    new LinkedList<>(Collections.singletonList(userLoginData.get().getAppUserRoles())));
+            userToken = new UserToken();
             userToken.setToken(token);
-            userToken.setAppUserRole(tutorLoginData.get().getAppUserRoles());
+            userToken.setAppUserRole(userLoginData.get().getAppUserRoles());
             log.debug("TutorService ==> signin() - end: userToken = {}", userToken);
-            return new ResponseObject(HttpStatus.ACCEPTED, "CORRECT_LOGIN_DATA", token, tutorLoginData.get().getAppUserRoles());
+            return new ResponseObject(HttpStatus.ACCEPTED, "CORRECT_LOGIN_DATA", token, userLoginData.get().getAppUserRoles());
         } catch (Exception e) {
             return new ResponseObject(HttpStatus.UNAUTHORIZED, "WRONG_DATA", null);
         }
