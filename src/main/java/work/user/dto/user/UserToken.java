@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class TutorToken {
+public class UserToken {
 
     private String token;
 
