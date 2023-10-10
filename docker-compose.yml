@@ -7,11 +7,6 @@ services:
       - "8085:8085"
     volumes:
       - ./target/leisure-link.jar:/target/leisure-link.jar
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/leisurelink
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: admin
-      SPRING_JPA_DATABASE-PLATFORM: org.hibernate.dialect.PostgreSQLDialect
     depends_on:
       - postgres
     command: java -jar /target/leisure-link.jar
