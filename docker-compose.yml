@@ -18,7 +18,7 @@ services:
       retries: 2
 
   postgres:
-    image: postgres:13
+    image: postgis/postgis:13-3.4
     container_name: postgres-db
     ports:
       - "5432:5432"
@@ -26,11 +26,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: leisurelink
-    healthcheck:
-      test: pg_isready -U postgres
-      interval: 1m
-      timeout: 10s
-      retries: 2
 
 
 networks:
