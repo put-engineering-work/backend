@@ -18,7 +18,7 @@ services:
       retries: 2
 
   postgres:
-    image: postgis/postgis:13-3.4
+    image: postgis/postgis:15-3.4
     container_name: postgres-db
     ports:
       - "5432:5432"
