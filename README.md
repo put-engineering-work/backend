@@ -7,3 +7,7 @@ To run the project using Docker Compose and build the images:
 ```bash
 docker-compose up --build
 ```
+Без билда
+```bash
+docker-compose up
+```
