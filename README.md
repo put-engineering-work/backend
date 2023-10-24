@@ -11,3 +11,5 @@ docker-compose up --build
 ```bash
 docker-compose up
 ```
+Линк на swagger
+http://localhost:8085/swagger-ui/index.html#/User
