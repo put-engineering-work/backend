@@ -1,0 +1,90 @@
+spring:
+  application:
+    name: leisure-link
+  profiles:
+    active: development
+    #main:
+    # allow-bean-definition-overriding: true
+  # Database
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    # For correct works with docker-compose, we need to change "localhost" to a service name, take from docker-compose.yml
+
+#    url: jdbc:postgresql://postgres-db:5432/leisurelink
+    url: jdbc:postgresql://localhost:5432/leisurelink
+    username: postgres
+    password: admin
+  # JPA properties
+  jpa:
+    hibernate:
+      ddl-auto: update # When you launch the application for the first time - switch "update" at "create"
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    #open-in-view: false
+    #generate-ddl: true
+  # Keycloak Configuration
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: leisurelink
+            authorization-grant-type: authorization_code
+#            redirect-uri: http://localhost:8181/oauth2/bud-style-client
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          keycloak:
+            issuer-uri: http://127.0.0.1:8180/realms/leisurelink-realm
+      resource-server:
+        jwt:
+          issuer-uri: http://127.0.0.1:8180/realms/leisurelink-realm
+          jwk-set-uri: ${spring.security.oauth2.client.provider.keycloak.issuer-uri}/protocol/openid-connect/certs
+
+jwt:
+  auth:
+    converter:
+      resource-id: springboot-keycloak-client
+      principal-attribute: preferred_username
+
+# Server configuration
+server:
+  port: 8085  #set your port
+# Logger configuration
+logging:
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+  level:
+    org.springframework: info
+    org.springframework.security: debug
+    org.springframework.security.oauth2: debug
+    #org.hibernate: debug
+# Swagger configuration
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html # swagger-ui custom path
+  api-docs:
+    path: /v3/api-docs.yaml
+# spring actuator
+management:
+  endpoints:
+    #enabled-by-default: true # If changed to false, you can enable separate functionality as indicated below
+    #endpoint: # here
+    # health:
+    #  enabled: true
+    web:
+      exposure:
+        # exclude: "*"
+        include: "*"
+
+rest:
+  methods:
+    logger:
+      enabled=true
+service:
+  methods:
+    logger:
+      enabled=false

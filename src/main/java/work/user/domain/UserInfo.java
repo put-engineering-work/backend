@@ -2,7 +2,7 @@ package work.user.domain;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.ZonedDateTime;
 
 @Entity
@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 @Builder(toBuilder = true)
 @Getter
 @Setter
-public class UserDetails {
+public class UserInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

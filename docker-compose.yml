@@ -1,21 +1,22 @@
-version: "3.3"
+version: '3.9'
 services:
-  app:
-    image: openjdk:17
-    container_name: leisure-link-backend
-    ports:
-      - "8085:8085"
-    volumes:
-      - ./target/leisure-link.jar:/target/leisure-link.jar
-    depends_on:
-      - postgres
-    command: java -jar /target/leisure-link.jar
-    # Service health check
-    healthcheck:
-      test: curl -f http://localhost:8085/profile || exit 1
-      interval: 1m
-      timeout: 10s
-      retries: 2
+#  app:
+#    image: openjdk:17
+#    container_name: leisure-link-backend
+#    ports:
+#      - "8085:8085"
+#    volumes:
+#      - ./target/leisure-link.jar:/target/leisure-link.jar
+#    depends_on:
+#      - postgres
+#      - keycloak
+#    command: java -jar /target/leisure-link.jar
+#    # Service health check
+#    healthcheck:
+#      test: curl -f http://localhost:8085/profile || exit 1
+#      interval: 1m
+#      timeout: 10s
+#      retries: 2
 
   postgres:
     image: postgis/postgis:15-3.4
@@ -27,6 +28,55 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: leisurelink
 
+  keycloak:
+    container_name: keycloak-auth
+    image: quay.io/keycloak/keycloak:22.0.1
+    #build:
+    # context: .
+    #args:
+    # KEYCLOAK_VERSION: 22.0.1
+    command:
+      - "start-dev"
+    ports:
+      - "8180:8080"
+    networks:
+      - keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-db
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_HEALTH_ENABLED: true
+    depends_on:
+      - keycloak-db
+    #volumes:
+    #  - /home/keycloak/automobile-realm.json:/opt/keycloak/data/import/automobile-realm.json
+    # Database Service (Postgres) for Keycloak
+  keycloak-db:
+    image: postgres:14-alpine
+    container_name: keycloak-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    networks: [ keycloak ]
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+
+
 
 networks:
   leisure-link:
+    name: app
+    driver: bridge
+  keycloak:
+    name: keycloak
+    driver: bridge
