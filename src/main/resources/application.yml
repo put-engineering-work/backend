@@ -26,29 +26,14 @@ spring:
   # Keycloak Configuration
   security:
     oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: leisurelink
-            authorization-grant-type: authorization_code
-#            redirect-uri: http://localhost:8181/oauth2/bud-style-client
-            scope:
-              - openid
-              - profile
-              - email
-        provider:
-          keycloak:
-            issuer-uri: http://127.0.0.1:8180/realms/leisurelink-realm
-      resource-server:
+      resourceserver:
         jwt:
-          issuer-uri: http://127.0.0.1:8180/realms/leisurelink-realm
-          jwk-set-uri: ${spring.security.oauth2.client.provider.keycloak.issuer-uri}/protocol/openid-connect/certs
+          jwk-set-uri:
+            http://localhost:8180/realms/leisurelink-realm/protocol/openid-connect/certs
+      authorizationserver:
+        endpoint:
+          authorization-uri:
 
-jwt:
-  auth:
-    converter:
-      resource-id: springboot-keycloak-client
-      principal-attribute: preferred_username
 
 # Server configuration
 server:
