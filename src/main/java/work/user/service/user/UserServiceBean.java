@@ -5,6 +5,7 @@ import work.user.domain.User;
 import work.user.dto.ResponseObject;
 import work.user.dto.user.UserToken;
 import work.user.dto.user.userdetails.GetUserDetailsDTO;
+import work.user.dto.user.userdetails.UpdateUserDetailsDTO;
 import work.user.repository.UserDetailsRepository;
 import work.user.repository.UserRepository;
 import work.util.exception.AuthenticationException;
@@ -42,7 +43,6 @@ public class UserServiceBean implements UserService {
 
     @Override
     public ResponseObject createUser(User user) {
-        log.debug("TutorService ==> createUser() - start: tutor = {}", user);
         var userFromDb = userRepository.findByEmail(user.getEmail());
 
         if (userFromDb.isEmpty()) {
@@ -54,18 +54,15 @@ public class UserServiceBean implements UserService {
             user.setCodeTimeGenerated(ZonedDateTime.now());
             userRepository.save(user);
             var response = new ResponseObject(HttpStatus.ACCEPTED, "USER_CREATED", null);
-            log.debug("TutorService ==> createUser() - end: tutor = {}", response);
             return response;
         } else {
             var response = new ResponseObject(HttpStatus.UNPROCESSABLE_ENTITY, "USER_ALREADY_EXIST", null);
-            log.debug("TutorService ==> createUser() - end: tutor = {}", response);
             return response;
         }
     }
 
     @Override
     public ResponseObject confirmRegistration(String code) {
-        log.debug("TutorService ==> confirmRegistration() - start: code = {}", code);
         var optionalTutor = userRepository.findByCode(code);
         if (optionalTutor.isPresent()) {
             long hours = getHours(optionalTutor);
@@ -81,14 +78,12 @@ public class UserServiceBean implements UserService {
                 var userToken = new UserToken();
                 userToken.setToken(token);
                 userToken.setAppUserRole(user.getAppUserRoles());
-                log.debug("TutorService ==> confirmRegistration() - end: code = {}, message = {}, token = {}", HttpStatus.OK, "Registration confirmed", token);
                 return new ResponseObject(HttpStatus.OK, "REGISTRATION_CONFIRMED", token);
             } else {
 
                 return new ResponseObject(HttpStatus.OK, "VERIFICATION_LINK_WAS_SEND_AGAIN", null);
             }
         } else {
-            log.debug("TutorService ==> confirmRegistration() - end: code = {}, message = {}, token = {}", HttpStatus.BAD_REQUEST, "Invalid registration code", null);
             return new ResponseObject(HttpStatus.BAD_REQUEST, "INVALID_REGISTRATION_CODE", null);
         }
     }
@@ -96,7 +91,6 @@ public class UserServiceBean implements UserService {
 
     @Override
     public ResponseObject signin(User user) {
-        log.debug("TutorService ==> signin() - start: user = {}", user);
         UserToken userToken;
         Optional<User> userLoginData = userRepository.findByEmail(user.getEmail());
         if (userLoginData.isEmpty()) {
@@ -125,7 +119,6 @@ public class UserServiceBean implements UserService {
             userToken = new UserToken();
             userToken.setToken(token);
             userToken.setAppUserRole(userLoginData.get().getAppUserRoles());
-            log.debug("TutorService ==> signin() - end: userToken = {}", userToken);
             return new ResponseObject(HttpStatus.ACCEPTED, "CORRECT_LOGIN_DATA", token, userLoginData.get().getAppUserRoles());
         } catch (Exception e) {
             return new ResponseObject(HttpStatus.UNAUTHORIZED, "WRONG_DATA", null);
@@ -135,7 +128,6 @@ public class UserServiceBean implements UserService {
 
     @Override
     public ResponseObject sendEmailToPasswordReset(String email) {
-        log.debug("TutorService ==> sendEmailToPasswordReset() - start: email = {}", email);
         var tutor = userRepository.findByEmail(email);
         if (tutor.isEmpty()) {
             return new ResponseObject(HttpStatus.BAD_REQUEST, "WRONG_DATA", null);
@@ -147,14 +139,12 @@ public class UserServiceBean implements UserService {
             tutor.get().setCodeTimeGenerated(ZonedDateTime.now());
             userRepository.save(tutor.get());
 
-            log.debug("TutorService ==> sendEmailToPasswordReset() - end:  HttpStatus = {}, message = {}, token = {}", HttpStatus.ACCEPTED, "EMAIL_SENT", null);
             return new ResponseObject(HttpStatus.ACCEPTED, "EMAIL_SENT", null);
         }
     }
 
     @Override
     public ResponseObject checkCodeForPasswordResetting(String code) {
-        log.debug("TutorService ==> passwordResetting() - start:  code = {}", code);
         var tutor = userRepository.findByCode(code);
         if (tutor.isEmpty()) {
             return new ResponseObject(HttpStatus.UNAUTHORIZED, "INVALID_CODE", null);
@@ -183,7 +173,6 @@ public class UserServiceBean implements UserService {
         }
         long hours = getHours(tutorOptional);
         if (hours > 4) {
-            log.debug("TutorService ==> sendEmailToPasswordReset() - end:  HttpStatus = {}, message = {}, token = {}", HttpStatus.UNAUTHORIZED, "TOKEN_EXPIRED", null);
             return new ResponseObject(HttpStatus.UNAUTHORIZED, "TOKEN_EXPIRED", null);
         } else {
             var tutor = tutorOptional.get();
@@ -191,7 +180,6 @@ public class UserServiceBean implements UserService {
             tutor.setCodeTimeGenerated(null);
             tutor.setPassword(passwordEncoder.encode(password));
             userRepository.save(tutor);
-            log.debug("TutorService ==> passwordResetting() - end:  HttpStatus = {}, message = {}, token = {}", HttpStatus.ACCEPTED, "PASSWORD_SUCCESSFULLY_CHANGED", null);
             return new ResponseObject(HttpStatus.ACCEPTED, "PASSWORD_SUCCESSFULLY_CHANGED", null);
         }
     }
@@ -199,13 +187,10 @@ public class UserServiceBean implements UserService {
 
     @Override
     public User getTutorByToken(HttpServletRequest request) {
-        log.debug("TutorService ==> getTutorByToken() - start: HttpServletRequest = {}", request);
         var tutor = userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(request)));
         if (tutor.isEmpty()) {
-            log.debug("TutorService ==> getTutorByToken() - end: AuthenticationException = {}", "Access denied");
             throw new AuthenticationException("ACCESS_DENIED");
         } else {
-            log.debug("TutorService ==> getTutorByToken() - end: tutor = {}", tutor.get());
             return tutor.get();
         }
 
@@ -224,21 +209,29 @@ public class UserServiceBean implements UserService {
     public GetUserDetailsDTO getUserDetails(Integer userId) {
         var userDetails = userDetailsRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
-        var response = userMapper.getUserDetailsData(userDetails);
-        response.setId(userDetails.getUser().getId());
-        return response;
+        return userMapper.getUserDetailsData(userDetails);
+    }
+
+    @Override
+    public ResponseObject updateUserDetails(UpdateUserDetailsDTO updateUserDetailsDTO, Integer userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
+        var userDetails = userMapper.fromUpdateUserDetails(updateUserDetailsDTO);
+        if (user.getUserDetails() != null)
+            userDetails.setId(user.getUserDetails().getId());
+        userDetails.setUser(user);
+        userDetails = userDetailsRepository.saveAndFlush(userDetails);
+        user.setUserDetails(userDetails);
+        userRepository.save(user);
+        return new ResponseObject(HttpStatus.ACCEPTED, "DATA_SUCCESSFULLY_UPDATED", null);
     }
 
     public String refresh(String email) {
-        log.debug("TutorService ==> refresh() - start: email = {}", email);
         var tutor = userRepository.findByEmail(email);
         if (tutor.isEmpty()) {
-            log.debug("TutorService ==> refresh() - end: UserNotFoundException = {}", "USER_WITH_THIS_EMAIL_NOT_FOUND");
             throw new UserNotFoundException("USER_WITH_THIS_EMAIL_NOT_FOUND");
         } else {
-            var token = jwtTokenProvider.createToken(email, Collections.singletonList(tutor.get().getAppUserRoles()));
-            log.debug("TutorService ==> refresh() - start: token = {}", token);
-            return token;
+            return jwtTokenProvider.createToken(email, Collections.singletonList(tutor.get().getAppUserRoles()));
         }
     }
 

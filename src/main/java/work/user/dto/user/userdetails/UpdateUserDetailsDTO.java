@@ -1,6 +1,5 @@
 package work.user.dto.user.userdetails;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.ZonedDateTime;
@@ -10,8 +9,7 @@ import java.time.ZonedDateTime;
 @Builder
 @AllArgsConstructor
 @ToString
-public class GetUserDetailsDTO {
-
+public class UpdateUserDetailsDTO {
     private String name;
 
     private String lastName;

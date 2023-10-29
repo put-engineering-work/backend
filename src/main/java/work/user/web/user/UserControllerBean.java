@@ -4,6 +4,7 @@ package work.user.web.user;
 import work.user.dto.ResponseObject;
 import work.user.dto.user.*;
 import work.user.dto.user.userdetails.GetUserDetailsDTO;
+import work.user.dto.user.userdetails.UpdateUserDetailsDTO;
 import work.user.service.user.UserService;
 import work.util.mapstruct.UserMapper;
 import io.swagger.annotations.Api;
@@ -68,5 +69,10 @@ public class UserControllerBean implements UserController {
     @Override
     public GetUserDetailsDTO getUserDetails(HttpServletRequest request) {
         return userService.getUserDetails(userService.getTutorByToken(request).getId());
+    }
+
+    @Override
+    public ResponseObject updateUserDetails(HttpServletRequest request, UpdateUserDetailsDTO detailsDTO) {
+        return userService.updateUserDetails(detailsDTO, userService.getTutorByToken(request).getId());
     }
 }

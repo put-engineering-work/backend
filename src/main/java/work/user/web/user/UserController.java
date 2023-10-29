@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import work.user.dto.user.userdetails.GetUserDetailsDTO;
+import work.user.dto.user.userdetails.UpdateUserDetailsDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -73,10 +74,19 @@ public interface UserController {
 
     @GetMapping("/user-details")
     @PreAuthorize("hasRole('ROLE_USER')")
-    @Operation(summary = "Reset password", description = "Reset user password.")
+    @Operation(summary = "Get user details", description = "Get user details.")
     @ApiResponses(value={
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "USER_NOT_FOUND"),
     })
     GetUserDetailsDTO getUserDetails(HttpServletRequest request);
+
+    @PutMapping("/user-details")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @ApiResponses(value={
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "DATA_SUCCESSFULLY_UPDATED"),
+    })
+    ResponseObject updateUserDetails(HttpServletRequest request, @RequestBody UpdateUserDetailsDTO detailsDTO);
+
 }
