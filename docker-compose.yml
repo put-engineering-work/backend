@@ -1,24 +1,24 @@
-version: "3.3"
+version: "3.8"
+
 services:
   app:
-    image: openjdk:17
+    build: .
     container_name: leisure-link-backend
     ports:
       - "8085:8085"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/leisurelink
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=admin
     volumes:
       - ./target/leisure-link.jar:/target/leisure-link.jar
     depends_on:
       - postgres
     command: java -jar /target/leisure-link.jar
-    # Service health check
-    healthcheck:
-      test: curl -f http://localhost:8085/profile || exit 1
-      interval: 1m
-      timeout: 10s
-      retries: 2
+
 
   postgres:
-    image: postgis/postgis:15-3.4
+    image: postgres:13
     container_name: postgres-db
     ports:
       - "5432:5432"
@@ -27,6 +27,3 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: leisurelink
 
-
-networks:
-  leisure-link:
