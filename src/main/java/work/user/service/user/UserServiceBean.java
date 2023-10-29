@@ -4,9 +4,12 @@ import work.user.domain.AppUserRole;
 import work.user.domain.User;
 import work.user.dto.ResponseObject;
 import work.user.dto.user.UserToken;
+import work.user.dto.user.userdetails.GetUserDetailsDTO;
+import work.user.repository.UserDetailsRepository;
 import work.user.repository.UserRepository;
 import work.util.exception.AuthenticationException;
 import work.util.exception.UserNotFoundException;
+import work.util.mapstruct.UserMapper;
 import work.util.secutity.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +36,8 @@ public class UserServiceBean implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsRepository userDetailsRepository;
+    private final UserMapper userMapper;
 
 
     @Override
@@ -210,14 +215,19 @@ public class UserServiceBean implements UserService {
     @Override
     @Transactional
     public ResponseObject resetPassword(User user, String password) {
-        log.debug("TutorService ==> resetPassword() - start: email = {}", password);
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
-        var response = new ResponseObject(HttpStatus.ACCEPTED, "PASSWORD_SUCCESSFULLY_UPDATED", refresh(user.getEmail()));
-        log.debug("TutorService ==> resetPassword() - end: response = {}", response);
-        return response;
+        return new ResponseObject(HttpStatus.ACCEPTED, "PASSWORD_SUCCESSFULLY_UPDATED", refresh(user.getEmail()));
     }
 
+    @Override
+    public GetUserDetailsDTO getUserDetails(Integer userId) {
+        var userDetails = userDetailsRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
+        var response = userMapper.getUserDetailsData(userDetails);
+        response.setId(userDetails.getUser().getId());
+        return response;
+    }
 
     public String refresh(String email) {
         log.debug("TutorService ==> refresh() - start: email = {}", email);

@@ -3,6 +3,7 @@ package work.user.web.user;
 
 import work.user.dto.ResponseObject;
 import work.user.dto.user.*;
+import work.user.dto.user.userdetails.GetUserDetailsDTO;
 import work.user.service.user.UserService;
 import work.util.mapstruct.UserMapper;
 import io.swagger.annotations.Api;
@@ -32,29 +33,14 @@ public class UserControllerBean implements UserController {
 
 
     @Override
-    public ResponseObject tutorRegisterAccount(@Valid RequestUserDto requestUserDto) {
-        log.info("UserController ==> tutorRegisterAccount() - start: requestTutorDTO = {}", requestUserDto);
-        var newUser = userMapper.requestTutorDtoToTutor(requestUserDto);
-        var response = userService.createUser(newUser);
-
-        log.info("UserController ==> tutorRegisterAccount() - end: response = {}", response);
-        return response;
-    }
-
-    @Override
-    public ResponseObject tutorConfirmRegistration(String code) {
-        log.info("UserController ==> tutorConfirmRegistration() - start: code = {}", code);
-        var responseObject = userService.confirmRegistration(code);
-        log.info("UserController ==> tutorConfirmRegistration() - start: responseObject = {}", responseObject);
-        return responseObject;
+    public ResponseObject tutorRegisterAccount(@Valid RequestUserDTO requestUserDto) {
+        var newUser = userMapper.requestUserDtoToUser(requestUserDto);
+        return userService.createUser(newUser);
     }
 
 
-    public ResponseObject login(RequestUserDto userLoginDto) {
-        log.info("UserController ==> login() - start: userLoginDto = {}", userLoginDto);
-        var token = userService.signin(userMapper.requestTutorDtoToTutor(userLoginDto));
-        log.info("UserController ==> login() - end: userLoginDto = {}", token);
-        return token;
+    public ResponseObject login(RequestUserDTO userLoginDto) {
+        return userService.signin(userMapper.requestUserDtoToUser(userLoginDto));
     }
 
     public ResponseObject resetPassword(String email) {
@@ -66,29 +52,21 @@ public class UserControllerBean implements UserController {
 
     @Override
     public ResponseObject checkCodeForPasswordResetting(String code) {
-        log.info("UserController ==> resetPassword() - start: code = {}", code);
-        var response = userService.checkCodeForPasswordResetting(code);
-        log.info("UserController ==> resetPassword() - start: response = {}", response);
-        return response;
+        return userService.checkCodeForPasswordResetting(code);
     }
 
     public ResponseObject confirmPasswordResetting(PasswordResetDTO passwordResetDTO) {
-        log.info("UserController ==> confirmPasswordResetting() - start: PasswordResetDTO = {}", passwordResetDTO);
-        var response = userService.passwordResetting(passwordResetDTO.getCode(), passwordResetDTO.getPassword());
-        log.info("UserController ==> confirmPasswordResetting() - end: response = {}", response);
-        return response;
+        return userService.passwordResetting(passwordResetDTO.getCode(), passwordResetDTO.getPassword());
     }
 
     @Override
     public ResponseObject resetPassword(HttpServletRequest request, ChangePasswordDTO password) {
-        log.info("UserController ==> resetPassword() - start: request = {}, password = {}", request, password);
         var tutor = userService.getTutorByToken(request);
-        var response = userService.resetPassword(tutor, password.getPassword());
-        log.info("UserController ==> resetPassword() - end: response = {}", response);
-        return response;
+        return userService.resetPassword(tutor, password.getPassword());
     }
 
-
-
-
+    @Override
+    public GetUserDetailsDTO getUserDetails(HttpServletRequest request) {
+        return userService.getUserDetails(userService.getTutorByToken(request).getId());
+    }
 }

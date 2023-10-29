@@ -2,6 +2,7 @@ package work.user.service.user;
 
 import work.user.domain.User;
 import work.user.dto.ResponseObject;
+import work.user.dto.user.userdetails.GetUserDetailsDTO;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -26,4 +27,5 @@ public interface UserService {
 
     String refresh(String email);
 
+    GetUserDetailsDTO getUserDetails(Integer userId);
 }

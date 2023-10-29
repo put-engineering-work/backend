@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import work.user.dto.user.userdetails.GetUserDetailsDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -24,17 +25,9 @@ public interface UserController {
             @ApiResponse(responseCode = "400", description = "User already added")
     })
     @ResponseStatus(HttpStatus.ACCEPTED)
-    ResponseObject tutorRegisterAccount(@RequestBody @Valid RequestUserDto requestUserDto);
+    ResponseObject tutorRegisterAccount(@RequestBody @Valid RequestUserDTO requestUserDto);
 
-    @GetMapping("/confirm/{code}")
-    @Operation(summary = "Endpoint to confirm user registration")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User registration confirmed"),
-            @ApiResponse(responseCode = "400", description = "Bad request"),
-            @ApiResponse(responseCode = "409", description = "Conflict")
-    })
-    @ResponseStatus(HttpStatus.CREATED)
-    ResponseObject tutorConfirmRegistration(@PathVariable("code") String code);
+
 
     // LOGIN
     @PostMapping("/signin")
@@ -45,7 +38,7 @@ public interface UserController {
             @ApiResponse(responseCode = "401", description = "Wrong data supplied"), //
             @ApiResponse(responseCode = "422", description = "Verification code was sent once again"),
     })
-    ResponseObject login(@RequestBody RequestUserDto userLoginDto);
+    ResponseObject login(@RequestBody RequestUserDTO userLoginDto);
 
     @PostMapping("/resetpassword/{email}")
     @Operation(summary = "Endpoint to reset user password")
@@ -78,7 +71,12 @@ public interface UserController {
     })
     ResponseObject resetPassword(HttpServletRequest request, @RequestBody ChangePasswordDTO password);
 
-
-
-
+    @GetMapping("/user-details")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @Operation(summary = "Reset password", description = "Reset user password.")
+    @ApiResponses(value={
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "USER_NOT_FOUND"),
+    })
+    GetUserDetailsDTO getUserDetails(HttpServletRequest request);
 }
