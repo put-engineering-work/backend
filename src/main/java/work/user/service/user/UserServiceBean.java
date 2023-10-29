@@ -9,6 +9,7 @@ import work.user.dto.user.userdetails.UpdateUserDetailsDTO;
 import work.user.repository.UserDetailsRepository;
 import work.user.repository.UserRepository;
 import work.util.exception.AuthenticationException;
+import work.util.exception.CustomException;
 import work.util.exception.UserNotFoundException;
 import work.util.mapstruct.UserMapper;
 import work.util.secutity.JwtTokenProvider;
@@ -53,11 +54,9 @@ public class UserServiceBean implements UserService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setCodeTimeGenerated(ZonedDateTime.now());
             userRepository.save(user);
-            var response = new ResponseObject(HttpStatus.ACCEPTED, "USER_CREATED", null);
-            return response;
+            return new ResponseObject(HttpStatus.ACCEPTED, "USER_CREATED", null);
         } else {
-            var response = new ResponseObject(HttpStatus.UNPROCESSABLE_ENTITY, "USER_ALREADY_EXIST", null);
-            return response;
+            throw new CustomException( HttpStatus.UNPROCESSABLE_ENTITY, "USER_ALREADY_EXIST");
         }
     }
 
@@ -94,23 +93,8 @@ public class UserServiceBean implements UserService {
         UserToken userToken;
         Optional<User> userLoginData = userRepository.findByEmail(user.getEmail());
         if (userLoginData.isEmpty()) {
-            return new ResponseObject(HttpStatus.BAD_REQUEST, "USER_WAS_NOT_REGISTERED", null);
+            throw new UserNotFoundException("USER_NOT_FOUND");
         }
-//        else if (!tutorLoginData.get().getIsActivated()) {
-//            try {
-//                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
-//                String code = RandomStringUtils.randomAlphanumeric(30, 30);
-//                tutorLoginData.get().setCode(code);
-//                tutorLoginData.get().setCodeTimeGenerated(ZonedDateTime.now());
-//                tutorLoginData.get().setPassword(passwordEncoder.encode(user.getPassword()));
-//
-//                userRepository.save(tutorLoginData.get());
-//
-//                return new ResponseObject(HttpStatus.UNPROCESSABLE_ENTITY, "VERIFICATION_CODE_WAS_SENT_ONCE_AGAIN", null);
-//            } catch (Exception e) {
-//                return new ResponseObject(HttpStatus.UNAUTHORIZED, "WRONG_DATA", null);
-//            }
-//        }
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
             String token = jwtTokenProvider.createToken(
