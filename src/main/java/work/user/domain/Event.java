@@ -22,6 +22,8 @@ public class Event {
 
     private String name;
 
+    private String code;
+
     private String address;
 
     private String description;
@@ -29,6 +31,8 @@ public class Event {
     private ZonedDateTime startDate;
 
     private ZonedDateTime endDate;
+
+    private ZonedDateTime createdAt;
 
     @OneToMany(fetch = FetchType.LAZY)
     private Set<Member> members = new HashSet<>();
