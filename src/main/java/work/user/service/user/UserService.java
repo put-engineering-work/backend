@@ -24,7 +24,7 @@ public interface UserService {
 
     ResponseObject resetPassword(User user, String password);
 
-    User getTutorByToken(HttpServletRequest request);
+    User getUserByToken(HttpServletRequest request);
 
     String refresh(String email);
 

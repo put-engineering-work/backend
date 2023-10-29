@@ -186,7 +186,7 @@ public class UserServiceBean implements UserService {
 
 
     @Override
-    public User getTutorByToken(HttpServletRequest request) {
+    public User getUserByToken(HttpServletRequest request) {
         var tutor = userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(request)));
         if (tutor.isEmpty()) {
             throw new AuthenticationException("ACCESS_DENIED");

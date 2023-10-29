@@ -62,17 +62,17 @@ public class UserControllerBean implements UserController {
 
     @Override
     public ResponseObject resetPassword(HttpServletRequest request, ChangePasswordDTO password) {
-        var tutor = userService.getTutorByToken(request);
+        var tutor = userService.getUserByToken(request);
         return userService.resetPassword(tutor, password.getPassword());
     }
 
     @Override
     public GetUserDetailsDTO getUserDetails(HttpServletRequest request) {
-        return userService.getUserDetails(userService.getTutorByToken(request).getId());
+        return userService.getUserDetails(userService.getUserByToken(request).getId());
     }
 
     @Override
     public ResponseObject updateUserDetails(HttpServletRequest request, UpdateUserDetailsDTO detailsDTO) {
-        return userService.updateUserDetails(detailsDTO, userService.getTutorByToken(request).getId());
+        return userService.updateUserDetails(detailsDTO, userService.getUserByToken(request).getId());
     }
 }
