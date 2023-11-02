@@ -2,12 +2,11 @@ package work.util.mapstruct;
 
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import work.user.domain.User;
-import work.user.domain.UserDetails;
-import work.user.dto.user.RequestUserDTO;
-import work.user.dto.user.userdetails.GetUserDetailsDTO;
-import work.user.dto.user.userdetails.UpdateUserDetailsDTO;
+import work.domain.User;
+import work.domain.UserDetails;
+import work.dto.user.RequestUserDTO;
+import work.dto.user.userdetails.GetUserDetailsDTO;
+import work.dto.user.userdetails.UpdateUserDetailsDTO;
 
 
 @Mapper(componentModel = "spring")

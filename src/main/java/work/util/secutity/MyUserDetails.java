@@ -1,12 +1,12 @@
 package work.util.secutity;
 
-import work.user.domain.User;
+import work.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import work.user.repository.UserRepository;
+import work.repository.UserRepository;
 
 import java.util.Optional;
 
