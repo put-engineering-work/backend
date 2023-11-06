@@ -1,4 +1,4 @@
-package work.util.secutity;
+package work.util.security;
 
 import work.domain.AppUserRole;
 import work.util.exception.AuthenticationException;

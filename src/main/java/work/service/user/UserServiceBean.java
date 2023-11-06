@@ -14,7 +14,7 @@ import work.util.exception.AuthenticationException;
 import work.util.exception.CustomException;
 import work.util.exception.UserNotFoundException;
 import work.util.mapstruct.UserMapper;
-import work.util.secutity.JwtTokenProvider;
+import work.util.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;

@@ -1,4 +1,4 @@
-package work.util.secutity;
+package work.util.security;
 
 import work.util.exception.CustomException;
 import org.springframework.security.core.Authentication;
