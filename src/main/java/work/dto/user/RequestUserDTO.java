@@ -25,4 +25,7 @@ public class RequestUserDTO {
     @Schema(description = "Password of an account.", example = "123456789")
     private String password;
 
+    private String name;
+
+    private String lastname;
 }

@@ -29,7 +29,7 @@ public class UserDetails {
     private ZonedDateTime birthDate;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+//    @JoinColumn(nullable = false)
     private User user;
 }
 

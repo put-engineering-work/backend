@@ -8,6 +8,8 @@ import work.dto.user.userdetails.GetUserDetailsDTO;
 import work.dto.user.userdetails.UpdateUserDetailsDTO;
 import work.repository.UserDetailsRepository;
 import work.repository.UserRepository;
+import work.service.email.EmailDetails;
+import work.service.email.EmailService;
 import work.util.exception.AuthenticationException;
 import work.util.exception.CustomException;
 import work.util.exception.UserNotFoundException;
@@ -40,6 +42,7 @@ public class UserServiceBean implements UserService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsRepository userDetailsRepository;
     private final UserMapper userMapper;
+    private final EmailService emailService;
 
 
     @Override
@@ -53,10 +56,19 @@ public class UserServiceBean implements UserService {
             user.setAppUserRoles(AppUserRole.ROLE_USER);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setCodeTimeGenerated(ZonedDateTime.now());
-            userRepository.save(user);
+            var userDetails = user.getUserDetails();
+            user.setUserDetails(null);
+            var savedUser = userRepository.saveAndFlush(user);
+            var savedUserDetails = userDetailsRepository.saveAndFlush(userDetails);
+            userRepository.setUserDetailsId(savedUser.getId(), savedUserDetails.getId());
+            userDetailsRepository.setUserDetailsId(savedUser.getId(), savedUserDetails.getId());
+            emailService.emailConfirmation(new EmailDetails(user.getEmail(),
+                    "Welcome to LeisureLink app " + savedUserDetails.getName()
+                            + " "
+                            + savedUserDetails.getLastName(), "Email confirmation"));
             return new ResponseObject(HttpStatus.ACCEPTED, "USER_CREATED", null);
         } else {
-            throw new CustomException( HttpStatus.UNPROCESSABLE_ENTITY, "USER_ALREADY_EXIST");
+            throw new CustomException(HttpStatus.UNPROCESSABLE_ENTITY, "USER_ALREADY_EXIST");
         }
     }
 
