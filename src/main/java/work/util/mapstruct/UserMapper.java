@@ -2,11 +2,21 @@ package work.util.mapstruct;
 
 
 import org.mapstruct.Mapper;
-import work.user.domain.User;
-import work.user.dto.user.RequestUserDto;
+import org.mapstruct.Mapping;
+import work.domain.User;
+import work.domain.UserDetails;
+import work.dto.user.RequestUserDTO;
+import work.dto.user.userdetails.GetUserDetailsDTO;
+import work.dto.user.userdetails.UpdateUserDetailsDTO;
 
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    User requestTutorDtoToTutor(RequestUserDto requestUserDto);
+    @Mapping(source = "name", target = "userDetails.name")
+    @Mapping(source = "lastname", target = "userDetails.lastName")
+    User requestUserDtoToUser(RequestUserDTO requestUserDto);
+
+    GetUserDetailsDTO getUserDetailsData(UserDetails userDetails);
+
+    UserDetails fromUpdateUserDetails(UpdateUserDetailsDTO updateUserDetailsDTO);
 }
