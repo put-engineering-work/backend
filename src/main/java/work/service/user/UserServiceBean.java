@@ -202,14 +202,14 @@ public class UserServiceBean implements UserService {
     }
 
     @Override
-    public GetUserDetailsDTO getUserDetails(Integer userId) {
+    public GetUserDetailsDTO getUserDetails(UUID userId) {
         var userDetails = userDetailsRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
         return userMapper.getUserDetailsData(userDetails);
     }
 
     @Override
-    public ResponseObject updateUserDetails(UpdateUserDetailsDTO updateUserDetailsDTO, Integer userId) {
+    public ResponseObject updateUserDetails(UpdateUserDetailsDTO updateUserDetailsDTO, UUID userId) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
         var userDetails = userMapper.fromUpdateUserDetails(updateUserDetailsDTO);

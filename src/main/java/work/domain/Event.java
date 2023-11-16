@@ -6,6 +6,10 @@ import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
+
+import org.hibernate.annotations.GenericGenerator;
+import org.locationtech.jts.geom.Point;
 
 @Entity
 @Table(name = "events")
@@ -17,8 +21,10 @@ import java.util.Set;
 public class Event {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     private String name;
 
@@ -29,6 +35,9 @@ public class Event {
     private ZonedDateTime startDate;
 
     private ZonedDateTime endDate;
+
+    @Column(columnDefinition = "geometry(Point,4326)")
+    private Point location;
 
     @OneToMany(fetch = FetchType.LAZY)
     private Set<Member> members = new HashSet<>();

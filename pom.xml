@@ -126,6 +126,7 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
             <version>1.5.1.Final</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -150,6 +151,21 @@
             <artifactId>opencv</artifactId>
             <version>4.5.5-1.5.7</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-spatial -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-spatial</artifactId>
+            <version>5.6.10.Final</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>1.18.1</version>
+        </dependency>
+
 
     </dependencies>
 
