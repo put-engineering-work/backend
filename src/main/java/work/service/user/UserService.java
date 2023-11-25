@@ -25,8 +25,6 @@ public interface UserService {
 
     ResponseObject resetPassword(User user, String password);
 
-    User getUserByToken(HttpServletRequest request);
-
     String refresh(String email);
 
     GetUserDetailsDTO getUserDetails(UUID userId);

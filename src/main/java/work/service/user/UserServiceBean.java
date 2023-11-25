@@ -25,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -179,19 +178,6 @@ public class UserServiceBean implements UserService {
             return new ResponseObject(HttpStatus.ACCEPTED, "PASSWORD_SUCCESSFULLY_CHANGED", null);
         }
     }
-
-
-    @Override
-    public User getUserByToken(HttpServletRequest request) {
-        var tutor = userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(request)));
-        if (tutor.isEmpty()) {
-            throw new AuthenticationException("ACCESS_DENIED");
-        } else {
-            return tutor.get();
-        }
-
-    }
-
 
     @Override
     @Transactional

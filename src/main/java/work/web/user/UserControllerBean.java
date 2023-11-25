@@ -5,6 +5,7 @@ import work.dto.ResponseObject;
 import work.dto.user.*;
 import work.dto.user.userdetails.GetUserDetailsDTO;
 import work.dto.user.userdetails.UpdateUserDetailsDTO;
+import work.service.authentication.AuthenticationService;
 import work.service.user.UserService;
 import work.util.mapstruct.UserMapper;
 import io.swagger.annotations.Api;
@@ -31,7 +32,7 @@ public class UserControllerBean implements UserController {
     private final UserMapper userMapper;
     private final UserService userService;
 
-
+    private final AuthenticationService authenticationService;
 
     @Override
     public ResponseObject tutorRegisterAccount(@Valid RequestUserDTO requestUserDto) {
@@ -62,17 +63,17 @@ public class UserControllerBean implements UserController {
 
     @Override
     public ResponseObject resetPassword(HttpServletRequest request, ChangePasswordDTO password) {
-        var tutor = userService.getUserByToken(request);
+        var tutor = authenticationService.getUserByToken(request);
         return userService.resetPassword(tutor, password.getPassword());
     }
 
     @Override
     public GetUserDetailsDTO getUserDetails(HttpServletRequest request) {
-        return userService.getUserDetails(userService.getUserByToken(request).getId());
+        return userService.getUserDetails(authenticationService.getUserByToken(request).getId());
     }
 
     @Override
     public ResponseObject updateUserDetails(HttpServletRequest request, UpdateUserDetailsDTO detailsDTO) {
-        return userService.updateUserDetails(detailsDTO, userService.getUserByToken(request).getId());
+        return userService.updateUserDetails(detailsDTO, authenticationService.getUserByToken(request).getId());
     }
 }

@@ -28,7 +28,6 @@ public class Member {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
     private Event event;
 
     @Enumerated(EnumType.STRING)

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import work.dto.ResponseObject;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
+import work.service.authentication.AuthenticationService;
 import work.service.event.EventService;
 import work.service.user.UserService;
 
@@ -26,14 +27,14 @@ public class EventControllerBean implements EventController {
     private final EventService eventService;
     private final UserService userService;
 
+
     public ResponseObject createEvent(HttpServletRequest request, EventCreateDto eventDto) {
-        return eventService.createEvent(eventDto);
+        return eventService.createEvent(request, eventDto);
     }
 
 
     public List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, Double latitude, Double longitude, Double radius) {
-        userService.getUserByToken(request);
-        return eventService.getEventsWithinRadius(latitude, longitude, radius);
+        return eventService.getEventsWithinRadius(request, latitude, longitude, radius);
     }
 
 }
