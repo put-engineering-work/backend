@@ -16,6 +16,7 @@ import work.dto.ResponseObject;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Api(value = "Event", tags = "Event")
@@ -27,7 +28,7 @@ public interface EventController {
             @ApiResponse(responseCode = "400", description = "Invalid event data provided")
     })
     @PostMapping("/create")
-    ResponseObject createEvent(@RequestBody EventCreateDto eventDto);
+    ResponseObject createEvent(HttpServletRequest request, @RequestBody EventCreateDto eventDto);
 
 
     @Operation(summary = "Get events within a specific radius")
@@ -38,7 +39,7 @@ public interface EventController {
     })
     @GetMapping("/radius/{latitude}/{longitude}/{radius}")
     List<EventsInRadiusDto> getEventsWithinRadius(
-            @PathVariable("latitude")
+            HttpServletRequest request, @PathVariable("latitude")
             @Parameter(description = "Latitude of the center point") Double latitude,
 
             @PathVariable("longitude")

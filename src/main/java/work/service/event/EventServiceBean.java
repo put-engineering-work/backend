@@ -24,7 +24,7 @@ public class EventServiceBean implements EventService{
 
     public ResponseObject createEvent(EventCreateDto eventToCreate) {
         var event=eventMapper.fromCreateDto(eventToCreate);
-        eventRepository.save(event);
+        event=eventRepository.saveAndFlush(event);
         return new ResponseObject(HttpStatus.CREATED, "CREATED", null);
     }
 
