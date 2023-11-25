@@ -33,8 +33,7 @@ public interface EventController {
 
     @Operation(summary = "Get events within a specific radius")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "List of events within the specified radius",
-                    content = @Content(schema = @Schema(implementation = EventsInRadiusDto.class))),
+            @ApiResponse(responseCode = "200", description = "List of events within the specified radius"),
             @ApiResponse(responseCode = "400", description = "Invalid coordinates or radius provided")
     })
     @GetMapping("/radius/{latitude}/{longitude}/{radius}")
