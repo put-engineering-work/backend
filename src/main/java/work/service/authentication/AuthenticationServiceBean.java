@@ -21,11 +21,11 @@ public class AuthenticationServiceBean implements AuthenticationService {
 
     @Override
     public User getUserByToken(HttpServletRequest request) {
-        var tutor = userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(request)));
-        if (tutor.isEmpty()) {
+        var user = userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(request)));
+        if (user.isEmpty()) {
             throw new AuthenticationException("ACCESS_DENIED");
         } else {
-            return tutor.get();
+            return user.get();
         }
 
     }

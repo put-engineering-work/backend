@@ -26,7 +26,7 @@ public interface UserController {
             @ApiResponse(responseCode = "400", description = "User already added")
     })
     @ResponseStatus(HttpStatus.ACCEPTED)
-    ResponseObject tutorRegisterAccount(@RequestBody @Valid RequestUserDTO requestUserDto);
+    ResponseObject userRegisterAccount(@RequestBody @Valid RequestUserDTO requestUserDto);
 
 
 
@@ -39,7 +39,7 @@ public interface UserController {
             @ApiResponse(responseCode = "401", description = "Wrong data supplied"), //
             @ApiResponse(responseCode = "422", description = "Verification code was sent once again"),
     })
-    ResponseObject login(@RequestBody RequestUserDTO userLoginDto);
+    ResponseObject login(@RequestBody RequestLoginDTO userLoginDto);
 
     @PostMapping("/resetpassword/{email}")
     @Operation(summary = "Endpoint to reset user password")

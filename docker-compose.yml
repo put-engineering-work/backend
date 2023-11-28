@@ -4,11 +4,14 @@ services:
 #    image: openjdk:17
 #    container_name: leisure-link-backend
 #    ports:
-#      - "8085:8085"
+#      - "8085:8085" # Port aplikacji
+#      - "5005:5005" # Port dla debugowania
 #    volumes:
 #      - ./target/leisure-link.jar:/target/leisure-link.jar
 #    depends_on:
 #      - postgres
+#    environment:
+#      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 #    command: java -jar /target/leisure-link.jar
 #    # Service health check
 #    healthcheck:

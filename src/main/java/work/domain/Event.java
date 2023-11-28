@@ -39,7 +39,7 @@ public class Event {
     @Column(columnDefinition = "geometry(Point,4326)")
     private Point location;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "event")
     private Set<Member> members = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY)

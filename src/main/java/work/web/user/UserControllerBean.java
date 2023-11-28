@@ -35,14 +35,14 @@ public class UserControllerBean implements UserController {
     private final AuthenticationService authenticationService;
 
     @Override
-    public ResponseObject tutorRegisterAccount(@Valid RequestUserDTO requestUserDto) {
+    public ResponseObject userRegisterAccount(@Valid RequestUserDTO requestUserDto) {
         var newUser = userMapper.requestUserDtoToUser(requestUserDto);
         return userService.createUser(newUser);
     }
 
 
-    public ResponseObject login(RequestUserDTO userLoginDto) {
-        return userService.signin(userMapper.requestUserDtoToUser(userLoginDto));
+    public ResponseObject login(RequestLoginDTO userLoginDto) {
+        return userService.signin(userMapper.fromRequestUserDto(userLoginDto));
     }
 
     public ResponseObject resetPassword(String email) {
