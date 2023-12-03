@@ -1,6 +1,7 @@
 package work.web.user;
 
 
+import org.springframework.web.multipart.MultipartFile;
 import work.dto.ResponseObject;
 import work.dto.user.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,7 +28,6 @@ public interface UserController {
     })
     @ResponseStatus(HttpStatus.ACCEPTED)
     ResponseObject userRegisterAccount(@RequestBody @Valid RequestUserDTO requestUserDto);
-
 
 
     // LOGIN
@@ -67,7 +67,7 @@ public interface UserController {
     @PutMapping("/reset-password")
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "Reset password", description = "Reset user password.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "PASSWORD_SUCCESSFULLY_UPDATED"),
     })
     ResponseObject resetPassword(HttpServletRequest request, @RequestBody ChangePasswordDTO password);
@@ -75,7 +75,7 @@ public interface UserController {
     @GetMapping("/user-details")
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "Get user details", description = "Get user details.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "USER_NOT_FOUND"),
     })
@@ -83,10 +83,17 @@ public interface UserController {
 
     @PutMapping("/user-details")
     @PreAuthorize("hasRole('ROLE_USER')")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "DATA_SUCCESSFULLY_UPDATED"),
     })
     ResponseObject updateUserDetails(HttpServletRequest request, @RequestBody UpdateUserDetailsDTO detailsDTO);
 
+    @PatchMapping("/user-details/photo")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "DATA_SUCCESSFULLY_UPDATED"),
+    })
+    ResponseObject updateUserImage(HttpServletRequest request, @ModelAttribute MultipartFile photo);
 }

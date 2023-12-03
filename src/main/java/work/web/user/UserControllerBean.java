@@ -1,6 +1,7 @@
 package work.web.user;
 
 
+import org.springframework.web.multipart.MultipartFile;
 import work.dto.ResponseObject;
 import work.dto.user.*;
 import work.dto.user.userdetails.GetUserDetailsDTO;
@@ -77,5 +78,10 @@ public class UserControllerBean implements UserController {
     @Override
     public ResponseObject updateUserDetails(HttpServletRequest request, UpdateUserDetailsDTO detailsDTO) {
         return userService.updateUserDetails(detailsDTO, authenticationService.getUserByToken(request).getId());
+    }
+
+    @Override
+    public ResponseObject updateUserImage(HttpServletRequest request, MultipartFile photo) {
+        return userService.updateUserImage(authenticationService.getUserByToken(request).getId(), photo);
     }
 }

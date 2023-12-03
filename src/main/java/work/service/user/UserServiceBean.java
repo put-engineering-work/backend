@@ -1,5 +1,6 @@
 package work.service.user;
 
+import org.springframework.web.multipart.MultipartFile;
 import work.domain.AppUserRole;
 import work.domain.User;
 import work.dto.ResponseObject;
@@ -11,6 +12,7 @@ import work.repository.UserRepository;
 import work.service.authentication.AuthenticationService;
 import work.service.email.EmailDetails;
 import work.service.email.EmailService;
+import work.service.imageoperation.ImageOperationService;
 import work.util.exception.CustomException;
 import work.util.exception.UserNotFoundException;
 import work.util.mapstruct.UserMapper;
@@ -24,12 +26,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.IntStream;
 
 
 @AllArgsConstructor
@@ -43,6 +43,7 @@ public class UserServiceBean implements UserService {
     private final UserDetailsRepository userDetailsRepository;
     private final UserMapper userMapper;
     private final EmailService emailService;
+    private final ImageOperationService imageOperationService;
 
 
     @Override
@@ -207,6 +208,18 @@ public class UserServiceBean implements UserService {
         user.setUserDetails(userDetails);
         userRepository.save(user);
         return new ResponseObject(HttpStatus.ACCEPTED, "DATA_SUCCESSFULLY_UPDATED", null);
+    }
+
+    public ResponseObject updateUserImage(UUID userId, MultipartFile photo){
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
+        if (user.getUserDetails()!=null){
+            user.getUserDetails().setPhoto(imageOperationService.compressImage(photo, 0.5f));
+            userRepository.save(user);
+        }
+        return new ResponseObject(HttpStatus.OK, "DATA_SUCCESSFULLY_UPDATED", null);
+
+
     }
 
     public String refresh(String email) {

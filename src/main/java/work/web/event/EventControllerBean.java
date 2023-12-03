@@ -6,13 +6,13 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 import work.dto.ResponseObject;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.service.event.EventService;
-import work.service.user.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -26,7 +26,6 @@ import java.util.UUID;
 public class EventControllerBean implements EventController {
 
     private final EventService eventService;
-    private final UserService userService;
 
 
     @Override
@@ -44,4 +43,5 @@ public class EventControllerBean implements EventController {
     public CertainEventDto getCertainEvent(UUID eventId) {
         return eventService.getCertainEvent(eventId);
     }
+
 }

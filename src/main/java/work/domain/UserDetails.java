@@ -32,6 +32,8 @@ public class UserDetails {
 
     private ZonedDateTime birthDate;
 
+    private byte[] photo;
+
     @OneToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(nullable = false)
     private User user;

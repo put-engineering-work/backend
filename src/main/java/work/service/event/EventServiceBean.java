@@ -1,9 +1,12 @@
 package work.service.event;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 import work.domain.AppMemberStatus;
 import work.domain.AppMemberType;
 import work.domain.Event;
@@ -18,33 +21,58 @@ import work.dto.event.get.certainevent.MembersForUserDto;
 import work.repository.EventRepository;
 import work.repository.MemberRepository;
 import work.service.authentication.AuthenticationService;
+import work.service.geodata.GeodataService;
 import work.util.exception.CustomException;
 import work.util.mapstruct.EventMapper;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 public class EventServiceBean implements EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
     private final AuthenticationService authenticationService;
     private final MemberRepository memberRepository;
+    private final GeodataService geodataService;
 
+    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService) {
+        this.eventRepository = eventRepository;
+        this.eventMapper = eventMapper;
+        this.authenticationService = authenticationService;
+        this.memberRepository = memberRepository;
+        this.geodataService = geodataService;
+    }
 
     public ResponseObject createEvent(HttpServletRequest request, EventCreateDto eventToCreate) {
         var user = authenticationService.getUserByToken(request);
         var event = eventMapper.fromCreateDto(eventToCreate);
-        event = eventRepository.saveAndFlush(event);
-        var member = new Member();
-        member.setUser(user);
-        member.setType(AppMemberType.ROLE_HOST);
-        member.setStatus(AppMemberStatus.STATUS_ACTIVE);
-        member.setEvent(event);
-        member = memberRepository.saveAndFlush(member);
+        Event finalEvent = event;
+        if (event.getAddress() == null || event.getAddress().isEmpty()) {
+            geodataService.getAddressFromCoordinates(event.getLocation().getX(), event.getLocation().getY())
+                    .subscribe(addressJson -> {
+                        String address = extractAddressFromJson(addressJson);
+                        finalEvent.setAddress(address);
+                        var member = new Member();
+                        member.setUser(user);
+                        member.setType(AppMemberType.ROLE_HOST);
+                        member.setStatus(AppMemberStatus.STATUS_ACTIVE);
+                        member.setEvent(eventRepository.saveAndFlush(finalEvent));
+                        member = memberRepository.saveAndFlush(member);
+                    });
+        }
+        else {
+            event = eventRepository.saveAndFlush(event);
+            var member = new Member();
+            member.setUser(user);
+            member.setType(AppMemberType.ROLE_HOST);
+            member.setStatus(AppMemberStatus.STATUS_ACTIVE);
+            member.setEvent(event);
+            member = memberRepository.saveAndFlush(member);
+        }
         return new ResponseObject(HttpStatus.CREATED, "CREATED", null);
     }
 
@@ -72,5 +100,21 @@ public class EventServiceBean implements EventService {
         response.setMembers(members);
         response.setHost(responseHost);
         return response;
+    }
+
+    private String extractAddressFromJson(String addressJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode root = objectMapper.readTree(addressJson);
+            if (root.has("results") && root.get("results").isArray()) {
+                JsonNode firstResult = root.get("results").get(0);
+                if (firstResult.has("formatted_address")) {
+                    return firstResult.get("formatted_address").asText();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
