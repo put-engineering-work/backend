@@ -22,7 +22,7 @@ public interface EventMapper {
     @AfterMapping
     default void setEventLocation(@MappingTarget Event event, EventCreateDto eventCreateDto) {
         GeometryFactory geometryFactory = new GeometryFactory();
-        Point location = geometryFactory.createPoint(new Coordinate(eventCreateDto.longitude(), eventCreateDto.latitude()));
+        Point location = geometryFactory.createPoint(new Coordinate(eventCreateDto.latitude(), eventCreateDto.longitude()));
         event.setLocation(location);
     }
 }
