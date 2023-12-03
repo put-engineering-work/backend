@@ -5,15 +5,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import work.dto.ResponseObject;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
+import work.dto.event.get.certainevent.CertainEventDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.UUID;
 
 @Api(value = "Event", tags = "Event")
 @Tag(name = "Event", description = "Event API")
@@ -36,4 +40,15 @@ public interface EventController {
     List<EventsInRadiusDto> getEventsWithinRadius(
             HttpServletRequest request,
             @RequestBody SearchEventDTO searchEventDTO);
+
+    @Operation(summary = "Get certain event by id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Event data"),
+                    @ApiResponse(responseCode = "404", description = "Event with this id not found")
+            }
+    )
+    @GetMapping("/event/{eventId}")
+    CertainEventDto getCertainEvent(@PathVariable("eventId") UUID eventId);
+
 }

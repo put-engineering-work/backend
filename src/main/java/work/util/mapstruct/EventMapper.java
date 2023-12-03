@@ -10,6 +10,7 @@ import org.mapstruct.MappingTarget;
 import work.domain.Event;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
+import work.dto.event.get.certainevent.CertainEventDto;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
@@ -25,4 +26,6 @@ public interface EventMapper {
         Point location = geometryFactory.createPoint(new Coordinate(eventCreateDto.latitude(), eventCreateDto.longitude()));
         event.setLocation(location);
     }
+
+    CertainEventDto toCertainEventDto(Event event);
 }

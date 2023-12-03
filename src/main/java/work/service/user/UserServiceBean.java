@@ -8,16 +8,15 @@ import work.dto.user.userdetails.GetUserDetailsDTO;
 import work.dto.user.userdetails.UpdateUserDetailsDTO;
 import work.repository.UserDetailsRepository;
 import work.repository.UserRepository;
+import work.service.authentication.AuthenticationService;
 import work.service.email.EmailDetails;
 import work.service.email.EmailService;
-import work.util.exception.AuthenticationException;
 import work.util.exception.CustomException;
 import work.util.exception.UserNotFoundException;
 import work.util.mapstruct.UserMapper;
 import work.util.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,10 +24,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.IntStream;
 
 
 @AllArgsConstructor
@@ -50,7 +51,7 @@ public class UserServiceBean implements UserService {
 
         if (userFromDb.isEmpty()) {
             user.setIsActivated(Boolean.FALSE);
-            String code = RandomStringUtils.randomAlphanumeric(30, 30);
+            String code = AuthenticationService.generateRandomAlphanumeric(30);
             user.setCode(code);
             user.setAppUserRoles(AppUserRole.ROLE_USER);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -129,7 +130,7 @@ public class UserServiceBean implements UserService {
         } else if (!tutor.get().getIsActivated()) {
             return new ResponseObject(HttpStatus.UNAUTHORIZED, "ACCOUNT_IS_NOT_ACTIVATED", null);
         } else {
-            String code = RandomStringUtils.randomAlphanumeric(30, 30);
+            String code = AuthenticationService.generateRandomAlphanumeric(30);
             tutor.get().setCode(code);
             tutor.get().setCodeTimeGenerated(ZonedDateTime.now());
             userRepository.save(tutor.get());
@@ -148,7 +149,7 @@ public class UserServiceBean implements UserService {
         }
         long hours = getHours(tutor);
         if (hours < 4) {
-            String newCode = RandomStringUtils.randomAlphanumeric(30, 30);
+            String newCode = AuthenticationService.generateRandomAlphanumeric(30);
             tutor.get().setCode(newCode);
             tutor.get().setCodeTimeGenerated(ZonedDateTime.now());
             userRepository.save(tutor.get());

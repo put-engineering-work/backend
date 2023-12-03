@@ -45,25 +45,21 @@ public class JwtTokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     public JwtTokenProvider(String secretKey, long validityInMilliseconds) {
-        logger.info("JwtTokenProvider initialized with secretKey and validityInMilliseconds");
         this.secretKey = secretKey;
         this.validityInMilliseconds = validityInMilliseconds;
     }
 
     public JwtTokenProvider(String secretKey, long validityInMilliseconds, @Lazy MyUserDetails myUserDetails) {
-        logger.info("JwtTokenProvider initialized with secretKey, validityInMilliseconds, and MyUserDetails");
         this.secretKey = secretKey;
         this.validityInMilliseconds = validityInMilliseconds;
         this.myUserDetails = myUserDetails;
     }
 
     public JwtTokenProvider(@Lazy MyUserDetails myUserDetails) {
-        logger.info("JwtTokenProvider initialized with MyUserDetails");
         this.myUserDetails = myUserDetails;
     }
 
     public JwtTokenProvider() {
-        logger.info("JwtTokenProvider initialized with empty arguments");
     }
 
     @PostConstruct

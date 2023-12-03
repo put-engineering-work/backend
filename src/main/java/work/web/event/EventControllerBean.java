@@ -10,11 +10,13 @@ import work.dto.ResponseObject;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
+import work.dto.event.get.certainevent.CertainEventDto;
 import work.service.event.EventService;
 import work.service.user.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/events", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -27,13 +29,19 @@ public class EventControllerBean implements EventController {
     private final UserService userService;
 
 
+    @Override
     public ResponseObject createEvent(HttpServletRequest request, EventCreateDto eventDto) {
         return eventService.createEvent(request, eventDto);
     }
 
 
+    @Override
     public List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO) {
         return eventService.getEventsWithinRadius(request, searchEventDTO);
     }
 
+    @Override
+    public CertainEventDto getCertainEvent(UUID eventId) {
+        return eventService.getCertainEvent(eventId);
+    }
 }
