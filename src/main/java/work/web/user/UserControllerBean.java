@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -40,7 +41,7 @@ public class UserControllerBean implements UserController {
         return userService.createUser(newUser);
     }
 
-
+    @Override
     public ResponseObject login(RequestLoginDTO userLoginDto) {
         return userService.signin(userMapper.fromRequestUserDto(userLoginDto));
     }
@@ -57,6 +58,7 @@ public class UserControllerBean implements UserController {
         return userService.checkCodeForPasswordResetting(code);
     }
 
+    @Override
     public ResponseObject confirmPasswordResetting(PasswordResetDTO passwordResetDTO) {
         return userService.passwordResetting(passwordResetDTO.getCode(), passwordResetDTO.getPassword());
     }

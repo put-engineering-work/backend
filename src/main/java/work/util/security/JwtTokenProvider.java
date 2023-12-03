@@ -1,5 +1,9 @@
 package work.util.security;
 
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import work.domain.AppUserRole;
 import work.util.exception.AuthenticationException;
 import work.util.exception.CustomException;
@@ -24,6 +28,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class JwtTokenProvider {
 
     /**
@@ -36,22 +41,29 @@ public class JwtTokenProvider {
     @Value("${security.jwt.token.expire-length:3600000}")
     private long validityInMilliseconds = 3600000; // 1h
     private MyUserDetails myUserDetails;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
+
     public JwtTokenProvider(String secretKey, long validityInMilliseconds) {
+        logger.info("JwtTokenProvider initialized with secretKey and validityInMilliseconds");
         this.secretKey = secretKey;
         this.validityInMilliseconds = validityInMilliseconds;
     }
 
-    public JwtTokenProvider(String secretKey, long validityInMilliseconds, MyUserDetails myUserDetails) {
+    public JwtTokenProvider(String secretKey, long validityInMilliseconds, @Lazy MyUserDetails myUserDetails) {
+        logger.info("JwtTokenProvider initialized with secretKey, validityInMilliseconds, and MyUserDetails");
         this.secretKey = secretKey;
         this.validityInMilliseconds = validityInMilliseconds;
         this.myUserDetails = myUserDetails;
     }
 
-    public JwtTokenProvider(MyUserDetails myUserDetails) {
+    public JwtTokenProvider(@Lazy MyUserDetails myUserDetails) {
+        logger.info("JwtTokenProvider initialized with MyUserDetails");
         this.myUserDetails = myUserDetails;
     }
 
     public JwtTokenProvider() {
+        logger.info("JwtTokenProvider initialized with empty arguments");
     }
 
     @PostConstruct
