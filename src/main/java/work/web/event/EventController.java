@@ -51,4 +51,9 @@ public interface EventController {
     @GetMapping("/event/{eventId}")
     CertainEventDto getCertainEvent(@PathVariable("eventId") UUID eventId);
 
+
+    //#TODO swagger docs
+    @PostMapping("/{eventId}/add-user")
+    ResponseObject addCurrentUserToEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
+
 }

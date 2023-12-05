@@ -73,4 +73,10 @@ public class EventServiceBean implements EventService {
         response.setHost(responseHost);
         return response;
     }
+
+    @Override
+    public ResponseObject addCurrentUserToEvent(HttpServletRequest request, UUID eventId) {
+        //#TODO
+        return null;
+    }
 }
