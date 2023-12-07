@@ -44,4 +44,8 @@ public class EventControllerBean implements EventController {
         return eventService.getCertainEvent(eventId);
     }
 
+    @Override
+    public ResponseObject addCurrentUserToEvent(HttpServletRequest request, UUID eventId) {
+        return eventService.addCurrentUserToEvent(request, eventId);
+    }
 }
