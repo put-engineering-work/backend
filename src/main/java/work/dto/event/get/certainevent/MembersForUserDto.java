@@ -1,5 +1,7 @@
 package work.dto.event.get.certainevent;
 
+import work.domain.AppMemberType;
+
 import java.util.UUID;
 
 public record MembersForUserDto(
@@ -7,6 +9,8 @@ public record MembersForUserDto(
 
         String name,
 
-        String lastName
+        String lastName,
+
+        AppMemberType type
 ) {
 }

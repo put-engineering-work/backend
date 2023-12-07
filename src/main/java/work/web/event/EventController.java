@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import reactor.core.publisher.Mono;
 import work.dto.ResponseObject;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
@@ -53,6 +52,8 @@ public interface EventController {
     CertainEventDto getCertainEvent(@PathVariable("eventId") UUID eventId);
 
 
-
+    //#TODO swagger docs
+    @PostMapping("/{eventId}/add-user")
+    ResponseObject addCurrentUserToEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 
 }

@@ -14,6 +14,8 @@ import java.util.UUID;
 public interface EventService {
     ResponseObject createEvent(HttpServletRequest request, EventCreateDto eventToCreate);
 
+    ResponseObject addCurrentUserToEvent(HttpServletRequest request, UUID eventId);
+
     List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO);
 
     CertainEventDto getCertainEvent(UUID id);

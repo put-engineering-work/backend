@@ -94,12 +94,18 @@ public class EventServiceBean implements EventService {
                 .orElseThrow(() -> new CustomException("NOT_FOUND", HttpStatus.NOT_FOUND));
         var members = event.getMembers().stream().filter(member -> member.getType() != AppMemberType.ROLE_HOST)
                 .map(member ->
-                        new MembersForUserDto(member.getUser().getId(), member.getUser().getUserDetails().getName(), member.getUser().getUserDetails().getLastName()))
+                        new MembersForUserDto(member.getUser().getId(), member.getUser().getUserDetails().getName(), member.getUser().getUserDetails().getLastName(), member.getType()))
                 .collect(Collectors.toSet());
         var responseHost = new Host(host.getUser().getId(), host.getUser().getUserDetails().getName(), host.getUser().getUserDetails().getLastName());
         response.setMembers(members);
         response.setHost(responseHost);
         return response;
+    }
+
+    @Override
+    public ResponseObject addCurrentUserToEvent(HttpServletRequest request, UUID eventId) {
+        //#TODO
+        return null;
     }
 
     private String extractAddressFromJson(String addressJson) {
