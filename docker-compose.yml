@@ -20,6 +20,12 @@ services:
 #      timeout: 10s
 #      retries: 2
 
+
+  adminer:
+    image: adminer
+    labels:
+      - traefik.http.routers.adminer.rule=Host(`adminer.localhost`)
+
   postgres:
     image: postgis/postgis:15-3.4
     container_name: postgres
@@ -27,8 +33,17 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: leisurelink
+
+  proxy:
+    image: traefik:v2.10
+    ports:
+      - 127.0.0.1:80:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - --providers.docker
 
 
 networks:
