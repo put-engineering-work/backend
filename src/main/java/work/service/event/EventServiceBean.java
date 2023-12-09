@@ -27,7 +27,9 @@ import work.util.mapstruct.EventMapper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -63,8 +65,7 @@ public class EventServiceBean implements EventService {
                         member.setEvent(eventRepository.saveAndFlush(finalEvent));
                         member = memberRepository.saveAndFlush(member);
                     });
-        }
-        else {
+        } else {
             event = eventRepository.saveAndFlush(event);
             var member = new Member();
             member.setUser(user);
@@ -80,6 +81,13 @@ public class EventServiceBean implements EventService {
     public List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO) {
         var user = authenticationService.getUserByToken(request);
         List<Event> events = eventRepository.findEventsWithinRadius(searchEventDTO.latitude(), searchEventDTO.longitude(), searchEventDTO.radius());
+        if (searchEventDTO.selectedCategories()!=null && !searchEventDTO.selectedCategories().isEmpty()) {
+            Set<String> selectedCategoryNames = new HashSet<>(searchEventDTO.selectedCategories());
+            events = events.stream()
+                    .filter(event -> event.getCategories().stream()
+                            .anyMatch(category -> selectedCategoryNames.contains(category.getName())))
+                    .collect(Collectors.toList());
+        }
         return events.stream()
                 .map(eventMapper::eventToEventsInRadiusDto)
                 .collect(Collectors.toList());
