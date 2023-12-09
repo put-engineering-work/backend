@@ -12,12 +12,11 @@ import java.util.UUID;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, UUID> {
-    @Query("SELECT e FROM Event e LEFT JOIN e.categories c " +
-            "WHERE ST_DWithin(e.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), :radius) = true and " +
-            "(c.name IN :categoryNames OR :categoryNames IS null )")
+    @Query(value = "SELECT e.* FROM events e " +
+            "WHERE st_distancesphere(e.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) <= :radius",
+            nativeQuery = true)
     List<Event> findEventsWithinRadius(
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,
-            @Param("radius") double radius,
-            @Param("categoryNames") Collection<String> categoryNames);
+            @Param("radius") double radius);
 }
