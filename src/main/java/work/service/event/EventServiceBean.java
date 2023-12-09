@@ -52,7 +52,7 @@ public class EventServiceBean implements EventService {
         var event = eventMapper.fromCreateDto(eventToCreate);
         Event finalEvent = event;
         if (event.getAddress() == null || event.getAddress().isEmpty()) {
-            geodataService.getAddressFromCoordinates(event.getLocation().getX(), event.getLocation().getY())
+            geodataService.getAddressFromCoordinates(event.getLocation().getY(), event.getLocation().getX())
                     .subscribe(addressJson -> {
                         String address = extractAddressFromJson(addressJson);
                         finalEvent.setAddress(address);
@@ -86,6 +86,7 @@ public class EventServiceBean implements EventService {
     }
 
     @Override
+    @Transactional
     public CertainEventDto getCertainEvent(UUID id) {
         var event = eventRepository.findById(id)
                 .orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));

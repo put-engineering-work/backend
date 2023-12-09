@@ -3,10 +3,7 @@ package work.util.mapstruct;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import work.domain.Event;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
@@ -14,18 +11,23 @@ import work.dto.event.get.certainevent.CertainEventDto;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
+    @Mapping(target = "location", source = "eventCreateDto", qualifiedByName = "toPoint")
     Event fromCreateDto(EventCreateDto eventCreateDto);
 
-    @Mapping(target = "latitude", expression = "java(event.getLocation().getX())")
-    @Mapping(target = "longitude", expression = "java(event.getLocation().getY())")
+    @Mapping(target = "longitude", expression = "java(event.getLocation().getX())")
+    @Mapping(target = "latitude", expression = "java(event.getLocation().getY())")
     EventsInRadiusDto eventToEventsInRadiusDto(Event event);
 
-    @AfterMapping
-    default void setEventLocation(@MappingTarget Event event, EventCreateDto eventCreateDto) {
+    @Named("toPoint")
+    default Point toPoint(EventCreateDto eventCreateDto) {
+        if (eventCreateDto == null || eventCreateDto.latitude() == null || eventCreateDto.longitude() == null) {
+            return null;
+        }
         GeometryFactory geometryFactory = new GeometryFactory();
-        Point location = geometryFactory.createPoint(new Coordinate(eventCreateDto.latitude(), eventCreateDto.longitude()));
-        event.setLocation(location);
+        return geometryFactory.createPoint(new Coordinate(eventCreateDto.longitude(), eventCreateDto.latitude()));
     }
 
+    @Mapping(target = "longitude", expression = "java(event.getLocation().getX())")
+    @Mapping(target = "latitude", expression = "java(event.getLocation().getY())")
     CertainEventDto toCertainEventDto(Event event);
 }

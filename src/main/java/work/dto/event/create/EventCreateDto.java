@@ -25,10 +25,10 @@ public record EventCreateDto(
         ZonedDateTime endDate,
 
         @Schema(description = "Geographical latitude of the event location", required = true, example = "52.2297")
-        double latitude,
+        Double latitude,
 
         @Schema(description = "Geographical longitude of the event location", required = true, example = "21.0122")
-        double longitude
+        Double longitude
 
 ) {
 }
