@@ -79,7 +79,7 @@ public class EventServiceBean implements EventService {
 
     @Transactional
     public List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO) {
-        var user = authenticationService.getUserByToken(request);
+//        var user = authenticationService.getUserByToken(request);
         List<Event> events = eventRepository.findEventsWithinRadius(searchEventDTO.latitude(), searchEventDTO.longitude(), searchEventDTO.radius());
         if (searchEventDTO.selectedCategories()!=null && !searchEventDTO.selectedCategories().isEmpty()) {
             Set<String> selectedCategoryNames = new HashSet<>(searchEventDTO.selectedCategories());
