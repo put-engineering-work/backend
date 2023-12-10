@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserControllerBean implements UserController {
     private final UserMapper userMapper;
     private final UserService userService;
-
     private final TokenService tokenService;
 
     @Override

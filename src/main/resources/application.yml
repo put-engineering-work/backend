@@ -23,17 +23,21 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     #open-in-view: false
     #generate-ddl: true
-  # Keycloak Configuration
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri:
-            http://localhost:8180/realms/leisurelink-realm/protocol/openid-connect/certs
-      authorizationserver:
-        endpoint:
-          authorization-uri:
 
+
+# Keycloak Configuration
+keycloak:
+  auth-server-url: http://localhost:8180/auth
+  realm: leisurelink-realm
+  resource: leisurelink-client-id
+  use-resource-role-mappings: true
+  bearer-only: true
+  security-constraints:
+    - auth-roles:
+        - ROLE_USER
+      security-collections:
+        - patterns:
+            - /user/*
 
 # Server configuration
 server:
