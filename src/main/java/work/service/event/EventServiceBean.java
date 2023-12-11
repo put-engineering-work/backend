@@ -79,9 +79,13 @@ public class EventServiceBean implements EventService {
 
     @Transactional
     public List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO) {
-//        var user = authenticationService.getUserByToken(request);
-        List<Event> events = eventRepository.findEventsWithinRadius(searchEventDTO.latitude(), searchEventDTO.longitude(), searchEventDTO.radius());
-        if (searchEventDTO.selectedCategories()!=null && !searchEventDTO.selectedCategories().isEmpty()) {
+        List<Event> events;
+        if (searchEventDTO.startDate() != null) {
+            events = eventRepository.findEventsWithinRadius(searchEventDTO.latitude(), searchEventDTO.longitude(), searchEventDTO.radius(), searchEventDTO.startDate());
+        } else {
+            events = eventRepository.findEventsWithinRadius(searchEventDTO.latitude(), searchEventDTO.longitude(), searchEventDTO.radius());
+        }
+        if (searchEventDTO.selectedCategories() != null && !searchEventDTO.selectedCategories().isEmpty()) {
             Set<String> selectedCategoryNames = new HashSet<>(searchEventDTO.selectedCategories());
             events = events.stream()
                     .filter(event -> event.getCategories().stream()
@@ -113,8 +117,15 @@ public class EventServiceBean implements EventService {
 
     @Override
     public ResponseObject addCurrentUserToEvent(HttpServletRequest request, UUID eventId) {
-        //#TODO
-        return null;
+        var user=authenticationService.getUserByToken(request);
+        var event=eventRepository.findById(eventId).orElseThrow(()-> new CustomException("EVENT_NOT_FOUND", HttpStatus.BAD_REQUEST));
+        var member = new Member();
+        member.setUser(user);
+        member.setType(AppMemberType.ROLE_GUEST);
+        member.setStatus(AppMemberStatus.STATUS_ACTIVE);
+        member.setEvent(eventRepository.saveAndFlush(event));
+        member = memberRepository.saveAndFlush(member);
+        return new ResponseObject(HttpStatus.OK, "USER_SUCCESSFULLY_ADD", null);
     }
 
     private String extractAddressFromJson(String addressJson) {

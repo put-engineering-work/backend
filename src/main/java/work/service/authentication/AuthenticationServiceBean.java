@@ -17,6 +17,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
     private final UserRepository userRepository;
 
     private final JwtTokenProvider jwtTokenProvider;
+
     public AuthenticationServiceBean(UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -30,5 +31,14 @@ public class AuthenticationServiceBean implements AuthenticationService {
         } else {
             return user.get();
         }
+    }
+
+    @Override
+    public String extractRequestToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.replace("Bearer ", "");
+        }
+        return null;
     }
 }

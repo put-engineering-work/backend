@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import work.domain.Event;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -19,4 +20,15 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,
             @Param("radius") double radius);
+
+    @Query(value = "SELECT e.* FROM events e " +
+            "WHERE st_distancesphere(e.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) <= :radius " +
+            "AND e.start_date >=:startDate " +
+            "AND e.start_date <= CURRENT_DATE + INTERVAL '1 DAY' - INTERVAL '1 SECOND'",
+            nativeQuery = true)
+    List<Event> findEventsWithinRadius(
+            @Param("latitude") double latitude,
+            @Param("longitude") double longitude,
+            @Param("radius") double radius,
+            @Param("startDate") ZonedDateTime startDate);
 }

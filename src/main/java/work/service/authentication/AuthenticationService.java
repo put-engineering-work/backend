@@ -8,11 +8,9 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static work.service.authentication.AuthenticationServiceBean.ALPHANUMERIC_CHARACTERS;
-
 public interface AuthenticationService {
     User getUserByToken(HttpServletRequest request);
-
+    String extractRequestToken(HttpServletRequest request);
     Random RANDOM = new SecureRandom();
     String ALPHANUMERIC_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 

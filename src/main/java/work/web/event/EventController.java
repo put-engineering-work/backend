@@ -51,8 +51,13 @@ public interface EventController {
     @GetMapping("/event/{eventId}")
     CertainEventDto getCertainEvent(@PathVariable("eventId") UUID eventId);
 
-
-    //#TODO swagger docs
+    @Operation(summary = "Add user to event")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "User added"),
+                    @ApiResponse(responseCode = "404", description = "EVENT_NOT_FOUND")
+            }
+    )
     @PostMapping("/{eventId}/add-user")
     ResponseObject addCurrentUserToEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 

@@ -2,6 +2,7 @@ package work.dto.event.get;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public record SearchEventDTO(
@@ -12,6 +13,9 @@ public record SearchEventDTO(
 
         @Schema(description = "Radius in meters", required = true, example = "500")
         Double radius,
+
+        @Schema(description = "Start event date", required = true)
+        ZonedDateTime startDate,
         @Schema(description = "List of selected categories")
         List<String> selectedCategories
 ) {
