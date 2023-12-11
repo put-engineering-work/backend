@@ -117,8 +117,8 @@ public class EventServiceBean implements EventService {
 
     @Override
     public ResponseObject addCurrentUserToEvent(HttpServletRequest request, UUID eventId) {
-        var user=authenticationService.getUserByToken(request);
-        var event=eventRepository.findById(eventId).orElseThrow(()-> new CustomException("EVENT_NOT_FOUND", HttpStatus.BAD_REQUEST));
+        var user = authenticationService.getUserByToken(request);
+        var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.BAD_REQUEST));
         var member = new Member();
         member.setUser(user);
         member.setType(AppMemberType.ROLE_GUEST);
@@ -126,6 +126,13 @@ public class EventServiceBean implements EventService {
         member.setEvent(eventRepository.saveAndFlush(event));
         member = memberRepository.saveAndFlush(member);
         return new ResponseObject(HttpStatus.OK, "USER_SUCCESSFULLY_ADD", null);
+    }
+
+    @Override
+    public String isUserRegisteredToEvent(HttpServletRequest request, UUID eventId) {
+        var user = authenticationService.getUserByToken(request);
+        var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId);
+        return event.map(value -> value.getMembers().stream().filter(member -> member.getUser().getId().equals(user.getId())).findFirst().get().getType().name()).orElse("NOT_ASSIGNED");
     }
 
     private String extractAddressFromJson(String addressJson) {

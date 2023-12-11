@@ -1,5 +1,6 @@
 package work.repository;
 
+import com.fasterxml.jackson.annotation.OptBoolean;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,6 +10,7 @@ import work.domain.Event;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -31,4 +33,8 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             @Param("longitude") double longitude,
             @Param("radius") double radius,
             @Param("startDate") ZonedDateTime startDate);
+
+    @Query(value = "select e.* from events e join members m on m.event_id=e.id where e.id=:eventId and m.user_id=:userId",
+            nativeQuery = true)
+    Optional<Event> findEventByIdAndUserId(@Param("userId") UUID userId, @Param("eventId") UUID eventId);
 }

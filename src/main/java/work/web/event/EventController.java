@@ -61,4 +61,6 @@ public interface EventController {
     @PostMapping("/{eventId}/add-user")
     ResponseObject addCurrentUserToEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 
+    @GetMapping("/is-registered/{eventId}")
+    String isRegisteredInEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 }

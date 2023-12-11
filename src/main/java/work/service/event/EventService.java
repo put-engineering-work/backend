@@ -19,4 +19,6 @@ public interface EventService {
     List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO);
 
     CertainEventDto getCertainEvent(UUID id);
+
+    String isUserRegisteredToEvent(HttpServletRequest request, UUID eventId);
 }
