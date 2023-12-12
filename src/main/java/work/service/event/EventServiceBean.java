@@ -132,7 +132,19 @@ public class EventServiceBean implements EventService {
     public String isUserRegisteredToEvent(HttpServletRequest request, UUID eventId) {
         var user = authenticationService.getUserByToken(request);
         var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId);
-        return event.map(value -> value.getMembers().stream().filter(member -> member.getUser().getId().equals(user.getId())).findFirst().get().getType().name()).orElse("NOT_ASSIGNED");
+        return event.map(value -> value.getMembers().stream().filter(member -> member.getUser().getId().equals(user.getId())).findFirst().get().getType().name()).orElse("NULL");
+    }
+
+    @Override
+    public ResponseObject removeCurrentUserFromEvent(HttpServletRequest request, UUID eventId) {
+        var user = authenticationService.getUserByToken(request);
+        var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
+        event.getMembers().stream()
+                .filter(member -> member.getUser().equals(user))
+                .findFirst().orElseThrow(()->new CustomException("UNAUTHORIZED",HttpStatus.UNAUTHORIZED))
+                .setStatus(AppMemberStatus.STATUS_INACTIVE);
+        eventRepository.saveAndFlush(event);
+        return new ResponseObject(HttpStatus.OK, "SUCCESSFULLY", authenticationService.extractRequestToken(request));
     }
 
     private String extractAddressFromJson(String addressJson) {

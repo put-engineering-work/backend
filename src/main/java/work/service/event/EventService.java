@@ -21,4 +21,6 @@ public interface EventService {
     CertainEventDto getCertainEvent(UUID id);
 
     String isUserRegisteredToEvent(HttpServletRequest request, UUID eventId);
+
+    ResponseObject removeCurrentUserFromEvent(HttpServletRequest request, UUID eventId);
 }

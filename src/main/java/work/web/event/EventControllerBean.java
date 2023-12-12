@@ -53,4 +53,9 @@ public class EventControllerBean implements EventController {
     public String isRegisteredInEvent(HttpServletRequest request, UUID eventId) {
         return eventService.isUserRegisteredToEvent(request, eventId);
     }
+
+    @Override
+    public ResponseObject removeCurrentUserFromEvent(HttpServletRequest request, UUID eventId) {
+        return eventService.removeCurrentUserFromEvent(request, eventId);
+    }
 }

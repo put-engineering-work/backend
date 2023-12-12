@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import work.dto.ResponseObject;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
@@ -61,6 +58,19 @@ public interface EventController {
     @PostMapping("/{eventId}/add-user")
     ResponseObject addCurrentUserToEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 
+    @Operation(summary = "Is user registered to event")
+    @ApiResponses(
+    )
     @GetMapping("/is-registered/{eventId}")
     String isRegisteredInEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
+
+    @Operation(summary = "Remove current user from event")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "SUCCESSFULLY"),
+                    @ApiResponse(responseCode = "403", description = "UNAUTHORIZED")
+            }
+    )
+    @PatchMapping("/remove-me/{eventId}")
+    ResponseObject removeCurrentUserFromEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 }
