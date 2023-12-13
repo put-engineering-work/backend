@@ -36,7 +36,7 @@ public class CertainEventDto {
     @Schema(description = "Geographical longitude of the event location", required = true, example = "21.0122")
     double longitude;
 
-    Integer numberOfMembers;
+    Integer numberOfMembers=0;
 
     Set<MembersForUserDto> members;
 
@@ -46,5 +46,5 @@ public class CertainEventDto {
 
     Set<Comment> comments;
 
-    Host host;
+    Host host=null;
 }
