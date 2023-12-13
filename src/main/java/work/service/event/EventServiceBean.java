@@ -105,13 +105,15 @@ public class EventServiceBean implements EventService {
         var response = eventMapper.toCertainEventDto(event);
         var host = memberRepository.findEventHost(id)
                 .orElseThrow(() -> new CustomException("NOT_FOUND", HttpStatus.NOT_FOUND));
-        var members = event.getMembers().stream().filter(member -> member.getType() != AppMemberType.ROLE_HOST)
+        var members = event.getMembers().stream()
+                .filter(member -> member.getType() != AppMemberType.ROLE_HOST)
                 .map(member ->
                         new MembersForUserDto(member.getUser().getId(), member.getUser().getUserDetails().getName(), member.getUser().getUserDetails().getLastName(), member.getType()))
                 .collect(Collectors.toSet());
         var responseHost = new Host(host.getUser().getId(), host.getUser().getUserDetails().getName(), host.getUser().getUserDetails().getLastName());
         response.setMembers(members);
         response.setHost(responseHost);
+        response.setNumberOfMembers(event.getMembers().size());
         return response;
     }
 
