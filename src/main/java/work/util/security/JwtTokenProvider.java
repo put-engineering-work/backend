@@ -71,9 +71,9 @@ public class JwtTokenProvider {
         //appUserRoles.add(AppUserRole.ROLE_CLIENT);
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("auth", appUserRoles.stream().map(
-                s ->
-                        new SimpleGrantedAuthority(
-                                s.getAuthority())).filter(Objects::nonNull)
+                        s ->
+                                new SimpleGrantedAuthority(
+                                        s.getAuthority())).filter(Objects::nonNull)
                 .collect(Collectors.toList()));
 
         Date now = new Date();
@@ -97,7 +97,7 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest req) {
-        if(req.getHeader("Authorization") == null){
+        if (req.getHeader("Authorization") == null) {
             throw new AuthenticationException();
         }
         String bearerToken = req.getHeader("Authorization");
