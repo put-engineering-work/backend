@@ -98,7 +98,7 @@ public class JwtTokenProvider {
 
     public String resolveToken(HttpServletRequest req) {
         if(req.getHeader("Authorization") == null){
-            throw new AuthenticationException("TOKEN_CANNOT_BE_EMPTY");
+            throw new AuthenticationException();
         }
         String bearerToken = req.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
