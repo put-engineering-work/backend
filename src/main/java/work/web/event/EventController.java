@@ -5,8 +5,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import work.dto.ResponseObject;
+import work.dto.event.create.CreateCommentDto;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
@@ -27,6 +29,14 @@ public interface EventController {
     @PostMapping("/create")
     ResponseObject createEvent(HttpServletRequest request, @RequestBody EventCreateDto eventDto);
 
+    @Operation(summary = "Create comment to event")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "201", description = "COMMENT_CREATED")
+            }
+    )
+    @PostMapping("/create/{eventId}/comment")
+    ResponseObject createEventComment(HttpServletRequest request, @RequestBody CreateCommentDto createCommentDto, @PathVariable("eventId") UUID eventId);
 
     @Operation(summary = "Get events within a specific radius")
     @ApiResponses(value = {

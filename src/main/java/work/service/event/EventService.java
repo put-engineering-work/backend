@@ -1,7 +1,7 @@
 package work.service.event;
 
-import reactor.core.publisher.Mono;
 import work.dto.ResponseObject;
+import work.dto.event.create.CreateCommentDto;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.EventsInRadiusDto;
@@ -13,6 +13,8 @@ import java.util.UUID;
 
 public interface EventService {
     ResponseObject createEvent(HttpServletRequest request, EventCreateDto eventToCreate);
+
+    ResponseObject createEventComment(HttpServletRequest request, CreateCommentDto createCommentDto, UUID eventId);
 
     ResponseObject addCurrentUserToEvent(HttpServletRequest request, UUID eventId);
 

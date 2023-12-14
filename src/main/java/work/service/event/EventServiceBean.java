@@ -2,27 +2,29 @@ package work.service.event;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 import work.domain.AppMemberStatus;
 import work.domain.AppMemberType;
 import work.domain.Event;
 import work.domain.Member;
 import work.dto.ResponseObject;
+import work.dto.event.create.CreateCommentDto;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
 import work.dto.event.get.certainevent.Host;
 import work.dto.event.get.certainevent.MembersForUserDto;
+import work.repository.CommentRepository;
 import work.repository.EventRepository;
 import work.repository.MemberRepository;
 import work.service.authentication.AuthenticationService;
 import work.service.geodata.GeodataService;
 import work.util.exception.CustomException;
+import work.util.mapstruct.CommentMapper;
 import work.util.mapstruct.EventMapper;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,13 +42,17 @@ public class EventServiceBean implements EventService {
     private final AuthenticationService authenticationService;
     private final MemberRepository memberRepository;
     private final GeodataService geodataService;
+    private final CommentMapper commentMapper;
+    private final CommentRepository commentRepository;
 
-    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService) {
+    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService, CommentMapper commentMapper, CommentRepository commentRepository) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.authenticationService = authenticationService;
         this.memberRepository = memberRepository;
         this.geodataService = geodataService;
+        this.commentMapper = commentMapper;
+        this.commentRepository = commentRepository;
     }
 
     public ResponseObject createEvent(HttpServletRequest request, EventCreateDto eventToCreate) {
@@ -77,7 +83,18 @@ public class EventServiceBean implements EventService {
         return new ResponseObject(HttpStatus.CREATED, "CREATED", null);
     }
 
+    @Override
+    public ResponseObject createEventComment(HttpServletRequest request, CreateCommentDto createCommentDto, UUID eventId) {
+        var user = authenticationService.getUserByToken(request);
+        var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(()-> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
+        var comment = commentMapper.fromCreateCommentDto(createCommentDto);
+        comment.setEvent(event);
+        commentRepository.save(comment);
+        return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", authenticationService.extractRequestToken(request));
+    }
+
     @Transactional
+    @Cacheable(value = "eventsInRadius", key = "#searchEventDTO")
     public List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO) {
         List<Event> events;
         if (searchEventDTO.startDate() != null) {
@@ -143,7 +160,7 @@ public class EventServiceBean implements EventService {
         var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
         event.getMembers().stream()
                 .filter(member -> member.getUser().equals(user))
-                .findFirst().orElseThrow(()->new CustomException("UNAUTHORIZED",HttpStatus.UNAUTHORIZED))
+                .findFirst().orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED))
                 .setStatus(AppMemberStatus.STATUS_INACTIVE);
         eventRepository.saveAndFlush(event);
         return new ResponseObject(HttpStatus.OK, "SUCCESSFULLY", authenticationService.extractRequestToken(request));

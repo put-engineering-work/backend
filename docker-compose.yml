@@ -45,6 +45,12 @@ services:
     command:
       - --providers.docker
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
 
 networks:
   leisure-link:

@@ -73,6 +73,16 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- (Optional) If you want to use the Jedis client -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
 
         <dependency>
             <!-- Automatically restart whenever files on the classpath change -->
@@ -170,7 +180,11 @@
             <artifactId>jts-core</artifactId>
             <version>1.18.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.9.0</version>
+        </dependency>
 
 
     </dependencies>

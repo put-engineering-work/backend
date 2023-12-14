@@ -2,12 +2,14 @@ package work.web.event;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import work.dto.ResponseObject;
+import work.dto.event.create.CreateCommentDto;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
@@ -33,6 +35,10 @@ public class EventControllerBean implements EventController {
         return eventService.createEvent(request, eventDto);
     }
 
+    @Override
+    public ResponseObject createEventComment(HttpServletRequest request, CreateCommentDto createCommentDto, UUID eventId) {
+        return eventService.createEventComment(request, createCommentDto, eventId);
+    }
 
     @Override
     public List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO) {
@@ -40,6 +46,7 @@ public class EventControllerBean implements EventController {
     }
 
     @Override
+    @Cacheable(value = "events", key = "#eventId")
     public CertainEventDto getCertainEvent(UUID eventId) {
         return eventService.getCertainEvent(eventId);
     }
