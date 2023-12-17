@@ -14,6 +14,8 @@ import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
 import work.dto.event.get.certainevent.CertainEventDto;
+import work.dto.event.get.certainevent.CommentDto;
+import work.dto.event.get.certainevent.MembersForUserDto;
 import work.service.event.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,9 +48,18 @@ public class EventControllerBean implements EventController {
     }
 
     @Override
-    @Cacheable(value = "events", key = "#eventId")
     public CertainEventDto getCertainEvent(UUID eventId) {
         return eventService.getCertainEvent(eventId);
+    }
+
+    @Override
+    public List<MembersForUserDto> getMembersForCertainEvent(UUID eventId) {
+        return eventService.getMembersForCertainEvent(eventId);
+    }
+
+    @Override
+    public List<CommentDto> getCommentsForCertainEvent(UUID eventId) {
+        return eventService.getCommentsForCertainEvent(eventId);
     }
 
     @Override

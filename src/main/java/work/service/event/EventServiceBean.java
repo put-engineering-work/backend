@@ -2,7 +2,6 @@ package work.service.event;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +15,7 @@ import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
+import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.Host;
 import work.dto.event.get.certainevent.MembersForUserDto;
 import work.repository.CommentRepository;
@@ -26,6 +26,7 @@ import work.service.geodata.GeodataService;
 import work.util.exception.CustomException;
 import work.util.mapstruct.CommentMapper;
 import work.util.mapstruct.EventMapper;
+import work.util.mapstruct.MemberMapper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -44,8 +45,9 @@ public class EventServiceBean implements EventService {
     private final GeodataService geodataService;
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
+    private final MemberMapper memberMapper;
 
-    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService, CommentMapper commentMapper, CommentRepository commentRepository) {
+    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService, CommentMapper commentMapper, CommentRepository commentRepository, MemberMapper memberMapper) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.authenticationService = authenticationService;
@@ -53,6 +55,7 @@ public class EventServiceBean implements EventService {
         this.geodataService = geodataService;
         this.commentMapper = commentMapper;
         this.commentRepository = commentRepository;
+        this.memberMapper = memberMapper;
     }
 
     public ResponseObject createEvent(HttpServletRequest request, EventCreateDto eventToCreate) {
@@ -84,9 +87,10 @@ public class EventServiceBean implements EventService {
     }
 
     @Override
+    @Transactional
     public ResponseObject createEventComment(HttpServletRequest request, CreateCommentDto createCommentDto, UUID eventId) {
         var user = authenticationService.getUserByToken(request);
-        var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(()-> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
+        var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
         var comment = commentMapper.fromCreateCommentDto(createCommentDto);
         comment.setEvent(event);
         commentRepository.save(comment);
@@ -94,7 +98,7 @@ public class EventServiceBean implements EventService {
     }
 
     @Transactional
-    @Cacheable(value = "eventsInRadius", key = "#searchEventDTO")
+//    @Cacheable(value = "eventsInRadius", key = "#searchEventDTO")
     public List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO) {
         List<Event> events;
         if (searchEventDTO.startDate() != null) {
@@ -116,38 +120,60 @@ public class EventServiceBean implements EventService {
 
     @Override
     @Transactional
+//    @Cacheable(value = "events", key = "#id")
     public CertainEventDto getCertainEvent(UUID id) {
         var event = eventRepository.findById(id)
                 .orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
         var response = eventMapper.toCertainEventDto(event);
         var host = memberRepository.findEventHost(id)
                 .orElseThrow(() -> new CustomException("NOT_FOUND", HttpStatus.NOT_FOUND));
-        var members = event.getMembers().stream()
-                .filter(member -> member.getType() != AppMemberType.ROLE_HOST)
-                .map(member ->
-                        new MembersForUserDto(member.getUser().getId(), member.getUser().getUserDetails().getName(), member.getUser().getUserDetails().getLastName(), member.getType()))
-                .collect(Collectors.toSet());
         var responseHost = new Host(host.getUser().getId(), host.getUser().getUserDetails().getName(), host.getUser().getUserDetails().getLastName());
-        response.setMembers(members);
         response.setHost(responseHost);
         response.setNumberOfMembers(event.getMembers().size());
         return response;
     }
 
     @Override
+    @Transactional
+    public List<MembersForUserDto> getMembersForCertainEvent(UUID eventId) {
+        var event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
+        var members = event.getMembers().stream()
+                .filter(member -> member.getType() != AppMemberType.ROLE_HOST && member.getStatus() != AppMemberStatus.STATUS_INACTIVE)
+                .toList();
+        return memberMapper.toMemberForUserDtoList(members);
+    }
+
+    @Override
+    @Transactional
+    public List<CommentDto> getCommentsForCertainEvent(UUID eventId) {
+        var event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
+        return commentMapper.toCommentDtoList(event.getComments().stream().toList());
+    }
+
+    @Override
+    @Transactional
     public ResponseObject addCurrentUserToEvent(HttpServletRequest request, UUID eventId) {
         var user = authenticationService.getUserByToken(request);
         var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.BAD_REQUEST));
-        var member = new Member();
-        member.setUser(user);
-        member.setType(AppMemberType.ROLE_GUEST);
-        member.setStatus(AppMemberStatus.STATUS_ACTIVE);
-        member.setEvent(eventRepository.saveAndFlush(event));
-        member = memberRepository.saveAndFlush(member);
+        var dbMember = memberRepository.isMemberExistInEvent(user.getId(), eventId);
+        if (dbMember.isPresent()) {
+            dbMember.get().setStatus(AppMemberStatus.STATUS_ACTIVE);
+            memberRepository.save(dbMember.get());
+        } else {
+            var member = new Member();
+            member.setUser(user);
+            member.setType(AppMemberType.ROLE_GUEST);
+            member.setStatus(AppMemberStatus.STATUS_ACTIVE);
+            member.setEvent(eventRepository.saveAndFlush(event));
+            member = memberRepository.saveAndFlush(member);
+        }
         return new ResponseObject(HttpStatus.OK, "USER_SUCCESSFULLY_ADD", null);
     }
 
     @Override
+    @Transactional
     public String isUserRegisteredToEvent(HttpServletRequest request, UUID eventId) {
         var user = authenticationService.getUserByToken(request);
         var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId);
@@ -155,6 +181,7 @@ public class EventServiceBean implements EventService {
     }
 
     @Override
+    @Transactional
     public ResponseObject removeCurrentUserFromEvent(HttpServletRequest request, UUID eventId) {
         var user = authenticationService.getUserByToken(request);
         var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));

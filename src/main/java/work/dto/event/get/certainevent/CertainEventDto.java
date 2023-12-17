@@ -38,13 +38,13 @@ public class CertainEventDto {
 
     Integer numberOfMembers=0;
 
-    Set<MembersForUserDto> members;
+//    Set<MembersForUserDto> members;
 
-    Set<EventImage> eventImages;
+    Set<EventImageDto> eventImages;
 
     Set<EventCategory> categories;
 
-    Set<Comment> comments;
+//    Set<CommentDto> comments;
 
-    Host host=null;
+    Host host;
 }
