@@ -2,6 +2,7 @@ package work.service.event;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +46,6 @@ public class EventServiceBean implements EventService {
     private final GeodataService geodataService;
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
-
     private final MemberMapper memberMapper;
 
     public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService, CommentMapper commentMapper, CommentRepository commentRepository, MemberMapper memberMapper) {
@@ -140,7 +140,7 @@ public class EventServiceBean implements EventService {
         var event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
         var members = event.getMembers().stream()
-                .filter(member -> member.getType() != AppMemberType.ROLE_HOST)
+                .filter(member -> member.getType() != AppMemberType.ROLE_HOST && member.getStatus() != AppMemberStatus.STATUS_INACTIVE)
                 .toList();
         return memberMapper.toMemberForUserDtoList(members);
     }
@@ -158,12 +158,18 @@ public class EventServiceBean implements EventService {
     public ResponseObject addCurrentUserToEvent(HttpServletRequest request, UUID eventId) {
         var user = authenticationService.getUserByToken(request);
         var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.BAD_REQUEST));
-        var member = new Member();
-        member.setUser(user);
-        member.setType(AppMemberType.ROLE_GUEST);
-        member.setStatus(AppMemberStatus.STATUS_ACTIVE);
-        member.setEvent(eventRepository.saveAndFlush(event));
-        member = memberRepository.saveAndFlush(member);
+        var dbMember = memberRepository.isMemberExistInEvent(user.getId(), eventId);
+        if (dbMember.isPresent()) {
+            dbMember.get().setStatus(AppMemberStatus.STATUS_ACTIVE);
+            memberRepository.save(dbMember.get());
+        } else {
+            var member = new Member();
+            member.setUser(user);
+            member.setType(AppMemberType.ROLE_GUEST);
+            member.setStatus(AppMemberStatus.STATUS_ACTIVE);
+            member.setEvent(eventRepository.saveAndFlush(event));
+            member = memberRepository.saveAndFlush(member);
+        }
         return new ResponseObject(HttpStatus.OK, "USER_SUCCESSFULLY_ADD", null);
     }
 
