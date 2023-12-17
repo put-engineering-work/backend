@@ -13,6 +13,8 @@ import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
 import work.dto.event.get.certainevent.CertainEventDto;
+import work.dto.event.get.certainevent.CommentDto;
+import work.dto.event.get.certainevent.MembersForUserDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -57,6 +59,26 @@ public interface EventController {
     )
     @GetMapping("/event/{eventId}")
     CertainEventDto getCertainEvent(@PathVariable("eventId") UUID eventId);
+
+    @Operation(summary = "Get event members for certain event by id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Event data"),
+                    @ApiResponse(responseCode = "404", description = "Event with this id not found")
+            }
+    )
+    @GetMapping("/event/{eventId}/members")
+    List<MembersForUserDto> getMembersForCertainEvent(@PathVariable("eventId") UUID eventId);
+
+    @Operation(summary = "Get event comments for certain event by id")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Event data"),
+                    @ApiResponse(responseCode = "404", description = "Event with this id not found")
+            }
+    )
+    @GetMapping("/event/{eventId}/comments")
+    List<CommentDto> getCommentsForCertainEvent(@PathVariable("eventId") UUID eventId);
 
     @Operation(summary = "Add user to event")
     @ApiResponses(

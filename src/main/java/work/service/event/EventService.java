@@ -1,14 +1,19 @@
 package work.service.event;
 
+import work.domain.EventCategory;
 import work.dto.ResponseObject;
 import work.dto.event.create.CreateCommentDto;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
+import work.dto.event.get.certainevent.CommentDto;
+import work.dto.event.get.certainevent.EventImageDto;
+import work.dto.event.get.certainevent.MembersForUserDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface EventService {
@@ -21,6 +26,10 @@ public interface EventService {
     List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO);
 
     CertainEventDto getCertainEvent(UUID id);
+
+    List<MembersForUserDto> getMembersForCertainEvent(UUID eventId);
+
+    List<CommentDto> getCommentsForCertainEvent(UUID eventId);
 
     String isUserRegisteredToEvent(HttpServletRequest request, UUID eventId);
 
