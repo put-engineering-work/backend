@@ -172,7 +172,7 @@ public class EventServiceBean implements EventService {
     public String isUserRegisteredToEvent(HttpServletRequest request, UUID eventId) {
         var user = authenticationService.getUserByToken(request);
         var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId);
-        return event.map(value -> value.getMembers().stream().filter(member -> member.getUser().getId().equals(user.getId())).findFirst().get().getType().name()).orElse("NULL");
+        return event.map(value -> value.getMembers().stream().filter(member -> member.getUser().getId().equals(user.getId())).findFirst().get().getType().name()).orElse(null);
     }
 
     @Override
