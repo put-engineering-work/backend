@@ -103,6 +103,6 @@ public interface EventController {
                     @ApiResponse(responseCode = "403", description = "UNAUTHORIZED")
             }
     )
-    @PatchMapping("/remove-me/{eventId}")
+    @PostMapping("/remove-me/{eventId}")
     ResponseObject removeCurrentUserFromEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 }
