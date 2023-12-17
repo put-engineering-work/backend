@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @ToString
 public class ResponseObject {
@@ -24,5 +23,12 @@ public class ResponseObject {
         this.code = code;
         this.message = message;
         this.token = token;
+    }
+
+    public ResponseObject(HttpStatus code, String message, String token, AppUserRole appUserRole) {
+        this.code = code;
+        this.message = message;
+        this.token = token;
+        this.appUserRole = appUserRole;
     }
 }
