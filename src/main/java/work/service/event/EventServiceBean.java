@@ -177,8 +177,14 @@ public class EventServiceBean implements EventService {
     @Transactional
     public String isUserRegisteredToEvent(HttpServletRequest request, UUID eventId) {
         var user = authenticationService.getUserByToken(request);
-        var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId);
-        return event.map(value -> value.getMembers().stream().filter(member -> member.getUser().getId().equals(user.getId()) && member.getStatus().equals(AppMemberStatus.STATUS_ACTIVE)).findFirst().get().getType().name()).orElse("NULL");
+        var member = memberRepository.isMemberExistInEvent(user.getId(), eventId);
+        if(member.isPresent()){
+            if (member.get().getStatus().equals(AppMemberStatus.STATUS_INACTIVE)){
+                return "NULL";
+            }
+            else return member.get().getType().toString();
+        }
+        else return "NULL";
     }
 
     @Override
