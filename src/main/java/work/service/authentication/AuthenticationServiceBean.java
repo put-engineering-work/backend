@@ -27,7 +27,7 @@ public class AuthenticationServiceBean implements AuthenticationService {
     public User getUserByToken(HttpServletRequest request) {
         var user = userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(request)));
         if (user.isEmpty()) {
-            throw new AuthenticationException("ACCESS_DENIED");
+            throw new AuthenticationException();
         } else {
             return user.get();
         }

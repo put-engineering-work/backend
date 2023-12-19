@@ -48,8 +48,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<?> handleAuthenticationException(Exception exception){
-        var errorDetails = new ResponseObject(HttpStatus.FORBIDDEN, exception.getMessage(), null);
-        return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);
+        var errorDetails = new ResponseObject(HttpStatus.UNAUTHORIZED, null, null);
+        return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)

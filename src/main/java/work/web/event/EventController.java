@@ -1,9 +1,10 @@
 package work.web.event;
 
-import io.swagger.annotations.Api;
+//import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.UUID;
 
-@Api(value = "Event", tags = "Event")
+//@Api(value = "Event", tags = "Event")
 @Tag(name = "Event", description = "Event API")
 public interface EventController {
     @Operation(summary = "Create a new event")
@@ -28,6 +29,7 @@ public interface EventController {
             @ApiResponse(responseCode = "201", description = "Event created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid event data provided")
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/create")
     ResponseObject createEvent(HttpServletRequest request, @RequestBody EventCreateDto eventDto);
 
@@ -37,6 +39,7 @@ public interface EventController {
                     @ApiResponse(responseCode = "201", description = "COMMENT_CREATED")
             }
     )
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/create/{eventId}/comment")
     ResponseObject createEventComment(HttpServletRequest request, @RequestBody CreateCommentDto createCommentDto, @PathVariable("eventId") UUID eventId);
 
@@ -87,12 +90,14 @@ public interface EventController {
                     @ApiResponse(responseCode = "404", description = "EVENT_NOT_FOUND")
             }
     )
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/{eventId}/add-user")
     ResponseObject addCurrentUserToEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 
     @Operation(summary = "Is user registered to event")
     @ApiResponses(
     )
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/is-registered/{eventId}")
     String isRegisteredInEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 
@@ -103,6 +108,7 @@ public interface EventController {
                     @ApiResponse(responseCode = "403", description = "UNAUTHORIZED")
             }
     )
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/remove-me/{eventId}")
     ResponseObject removeCurrentUserFromEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 }

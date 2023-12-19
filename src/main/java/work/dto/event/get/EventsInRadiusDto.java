@@ -1,6 +1,5 @@
 package work.dto.event.get;
 
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import work.domain.Comment;
 import work.domain.EventCategory;

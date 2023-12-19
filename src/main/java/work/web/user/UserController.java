@@ -1,6 +1,7 @@
 package work.web.user;
 
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.web.multipart.MultipartFile;
 import work.dto.ResponseObject;
 import work.dto.user.*;
@@ -32,7 +33,7 @@ public interface UserController {
 
     // LOGIN
     @PostMapping("/signin")
-    @Operation(summary = "Endpoint to login user", hidden = true)
+    @Operation(summary = "Endpoint to login user")
     @ApiResponses(value = {//
             @ApiResponse(responseCode = "202", description = "Login successful"), //
             @ApiResponse(responseCode = "400", description = "Bad Request: User was not registered"), //
@@ -41,7 +42,7 @@ public interface UserController {
     })
     ResponseObject login(@RequestBody RequestLoginDTO userLoginDto);
 
-    @PostMapping("/resetpassword/{email}")
+    @PostMapping("/resetpassword/{email}    ")
     @Operation(summary = "Endpoint to reset user password")
     @ApiResponses(value = {//
             @ApiResponse(responseCode = "400", description = "Something went wrong"), //
@@ -79,6 +80,7 @@ public interface UserController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "USER_NOT_FOUND"),
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     GetUserDetailsDTO getUserDetails(HttpServletRequest request);
 
     @PutMapping("/user-details")
@@ -87,6 +89,7 @@ public interface UserController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "DATA_SUCCESSFULLY_UPDATED"),
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     ResponseObject updateUserDetails(HttpServletRequest request, @RequestBody UpdateUserDetailsDTO detailsDTO);
 
     @PatchMapping("/user-details/photo")
@@ -95,5 +98,6 @@ public interface UserController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "DATA_SUCCESSFULLY_UPDATED"),
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     ResponseObject updateUserImage(HttpServletRequest request, @ModelAttribute MultipartFile photo);
 }

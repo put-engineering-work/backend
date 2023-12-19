@@ -9,7 +9,7 @@ import work.dto.user.userdetails.UpdateUserDetailsDTO;
 import work.service.authentication.AuthenticationService;
 import work.service.user.UserService;
 import work.util.mapstruct.UserMapper;
-import io.swagger.annotations.Api;
+//import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import javax.validation.Valid;
 @RequestMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 @Slf4j
-@Api(value = "User", tags = "User")
+//@Api(value = "User", tags = "User")
 @Tag(name = "User", description = "User API")
 @CrossOrigin
 public class UserControllerBean implements UserController {
