@@ -1,12 +1,10 @@
 package work.web.event;
 
-//import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import work.dto.ResponseObject;
 import work.dto.event.create.CreateCommentDto;
@@ -17,6 +15,7 @@ import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.MembersForUserDto;
 
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.UUID;
@@ -111,4 +110,30 @@ public interface EventController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/remove-me/{eventId}")
     ResponseObject removeCurrentUserFromEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
+
+
+    @Operation(summary = "Get last N events.", description ="For main page, just write expected offset")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400")
+    })
+    @GetMapping("/last/{number}")
+    @PermitAll
+    List<EventsInRadiusDto> getLastNEvents(@PathVariable("number") Integer number);
+
+
+    @Operation(summary = "Get number of pages")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK")
+    })
+    @PostMapping("/number/{numberOfEventOnPage}")
+    Integer getNumberOfPages(@PathVariable("numberOfEventOnPage") Integer numberOfEventOnPage, SearchEventDTO searchEventDTO);
+
+
+    @Operation(summary = "Get number of pages")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK")
+    })
+    @PostMapping("/pageable/{pageSize}/{pageNumber}")
+    List<EventsInRadiusDto> getEventsWithPagination(@PathVariable("pageSize") Integer pageSize, @PathVariable("pageNumber") Integer pageNumber, SearchEventDTO searchEventDTO);
 }

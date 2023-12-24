@@ -2,7 +2,9 @@ package work.service.event;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,7 @@ import work.util.mapstruct.MemberMapper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -90,12 +93,24 @@ public class EventServiceBean implements EventService {
     @Override
     @Transactional
     public ResponseObject createEventComment(HttpServletRequest request, CreateCommentDto createCommentDto, UUID eventId) {
-        var user = authenticationService.getUserByToken(request);
-        var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
-        var comment = commentMapper.fromCreateCommentDto(createCommentDto);
-        comment.setEvent(event);
-        commentRepository.save(comment);
-        return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", authenticationService.extractRequestToken(request));
+        try {
+            var user = authenticationService.getUserByToken(request);
+            var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
+            var comment = commentMapper.fromCreateCommentDto(createCommentDto);
+            comment.setEvent(event);
+            comment.setUser(user);
+            comment.setCommentDate(ZonedDateTime.now());
+            commentRepository.save(comment);
+            return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", authenticationService.extractRequestToken(request));
+        } catch (Exception e) {
+            var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
+            var comment = commentMapper.fromCreateCommentDto(createCommentDto);
+            comment.setEvent(event);
+            comment.setCommentDate(ZonedDateTime.now());
+            commentRepository.save(comment);
+            return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", null);
+        }
+
     }
 
     @Transactional
@@ -178,13 +193,11 @@ public class EventServiceBean implements EventService {
     public String isUserRegisteredToEvent(HttpServletRequest request, UUID eventId) {
         var user = authenticationService.getUserByToken(request);
         var member = memberRepository.isMemberExistInEvent(user.getId(), eventId);
-        if(member.isPresent()){
-            if (member.get().getStatus().equals(AppMemberStatus.STATUS_INACTIVE)){
+        if (member.isPresent()) {
+            if (member.get().getStatus().equals(AppMemberStatus.STATUS_INACTIVE)) {
                 return "NULL";
-            }
-            else return member.get().getType().toString();
-        }
-        else return "NULL";
+            } else return member.get().getType().toString();
+        } else return "NULL";
     }
 
     @Override
@@ -198,6 +211,64 @@ public class EventServiceBean implements EventService {
                 .setStatus(AppMemberStatus.STATUS_INACTIVE);
         eventRepository.saveAndFlush(event);
         return new ResponseObject(HttpStatus.OK, "SUCCESSFULLY", authenticationService.extractRequestToken(request));
+    }
+
+    @Override
+    public List<EventsInRadiusDto> getLastNEvents(Integer number) {
+        var events = eventRepository.findLastNEvents(number, ZonedDateTime.now());
+        return events.stream()
+                .map(eventMapper::eventToEventsInRadiusDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public Integer getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO) {
+        List<Event> events;
+        if (searchEventDTO.startDate() != null) {
+            events = eventRepository.findEventsWithinRadius(searchEventDTO.latitude(), searchEventDTO.longitude(), searchEventDTO.radius(), searchEventDTO.startDate());
+        } else {
+            events = eventRepository.findEventsWithinRadius(searchEventDTO.latitude(), searchEventDTO.longitude(), searchEventDTO.radius());
+        }
+        if (searchEventDTO.selectedCategories() != null && !searchEventDTO.selectedCategories().isEmpty()) {
+            Set<String> selectedCategoryNames = new HashSet<>(searchEventDTO.selectedCategories());
+            events = events.stream()
+                    .filter(event -> event.getCategories().stream()
+                            .anyMatch(category -> selectedCategoryNames.contains(category.getName())))
+                    .collect(Collectors.toList());
+        }
+        int totalEvents = events.size();
+        return (int) Math.ceil((double) totalEvents / numberOfEventOnPage);
+    }
+
+    @Override
+    @Transactional
+    public List<EventsInRadiusDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Event> eventPage;
+        List<Event> result;
+        if (searchEventDTO.startDate() != null) {
+            eventPage = eventRepository.findEventsWithinRadiusWithPagination(searchEventDTO.latitude(),
+                    searchEventDTO.longitude(), searchEventDTO.radius(), searchEventDTO.startDate(), pageable);
+        } else {
+            eventPage= eventRepository.findEventsWithinRadiusWithPagination(searchEventDTO.latitude(),
+                    searchEventDTO.longitude(), searchEventDTO.radius(), pageable);
+        }
+        if (searchEventDTO.selectedCategories() != null && !searchEventDTO.selectedCategories().isEmpty()) {
+            Set<String> selectedCategoryNames = new HashSet<>(searchEventDTO.selectedCategories());
+            result = eventPage.stream()
+                    .filter(event -> event.getCategories().stream()
+                            .anyMatch(category -> selectedCategoryNames.contains(category.getName())))
+                    .toList();
+        }
+        else {
+            return eventPage.stream()
+                    .map(eventMapper::eventToEventsInRadiusDto)
+                    .collect(Collectors.toList());
+        }
+        return result.stream()
+                .map(eventMapper::eventToEventsInRadiusDto)
+                .collect(Collectors.toList());
     }
 
     private String extractAddressFromJson(String addressJson) {

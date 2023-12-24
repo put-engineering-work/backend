@@ -2,12 +2,10 @@ package work.web.event;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 import work.dto.ResponseObject;
 import work.dto.event.create.CreateCommentDto;
 import work.dto.event.create.EventCreateDto;
@@ -75,5 +73,20 @@ public class EventControllerBean implements EventController {
     @Override
     public ResponseObject removeCurrentUserFromEvent(HttpServletRequest request, UUID eventId) {
         return eventService.removeCurrentUserFromEvent(request, eventId);
+    }
+
+    @Override
+    public List<EventsInRadiusDto> getLastNEvents(Integer number) {
+        return eventService.getLastNEvents(number);
+    }
+
+    @Override
+    public Integer getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO) {
+        return eventService.getNumberOfPages(numberOfEventOnPage, searchEventDTO);
+    }
+
+    @Override
+    public List<EventsInRadiusDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO) {
+        return eventService.getEventsWithPagination(pageSize, pageNumber, searchEventDTO);
     }
 }

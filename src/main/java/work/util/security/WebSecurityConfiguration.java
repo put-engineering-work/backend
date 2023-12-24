@@ -33,6 +33,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 ,
 //                "/**"
 //                ,
+                "/events/number",
+                "/events/pageable/**",
+                "/events/last/**",
+                "/events/search",
+                "/events/event/**",
+                "/events/create/**",
                 "/user/signin",
                 "/user/signup"
         );
