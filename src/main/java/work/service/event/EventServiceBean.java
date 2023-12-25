@@ -93,23 +93,23 @@ public class EventServiceBean implements EventService {
     @Override
     @Transactional
     public ResponseObject createEventComment(HttpServletRequest request, CreateCommentDto createCommentDto, UUID eventId) {
-        try {
-            var user = authenticationService.getUserByToken(request);
-            var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
-            var comment = commentMapper.fromCreateCommentDto(createCommentDto);
-            comment.setEvent(event);
-            comment.setUser(user);
-            comment.setCommentDate(ZonedDateTime.now());
-            commentRepository.save(comment);
-            return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", authenticationService.extractRequestToken(request));
-        } catch (Exception e) {
-            var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
-            var comment = commentMapper.fromCreateCommentDto(createCommentDto);
-            comment.setEvent(event);
-            comment.setCommentDate(ZonedDateTime.now());
-            commentRepository.save(comment);
-            return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", null);
-        }
+//        try {
+        var user = authenticationService.getUserByToken(request);
+        var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
+        var comment = commentMapper.fromCreateCommentDto(createCommentDto);
+        comment.setEvent(event);
+        comment.setUser(user);
+        comment.setCommentDate(ZonedDateTime.now());
+        commentRepository.save(comment);
+        return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", authenticationService.extractRequestToken(request));
+//        } catch (Exception e) {
+//            var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
+//            var comment = commentMapper.fromCreateCommentDto(createCommentDto);
+//            comment.setEvent(event);
+//            comment.setCommentDate(ZonedDateTime.now());
+//            commentRepository.save(comment);
+//            return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", null);
+//        }
 
     }
 
