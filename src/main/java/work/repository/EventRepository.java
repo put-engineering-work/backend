@@ -76,4 +76,17 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             @Param("longitude") double longitude,
             @Param("radius") double radius,
             Pageable pageable);
+
+    @Query(value = "SELECT e.* " +
+            "FROM events e " +
+            "JOIN members m ON e.id = m.event_id " +
+            "WHERE m.user_id =:userId " +
+            "ORDER BY e.start_date DESC " +
+            "LIMIT :limit",
+            nativeQuery = true)
+    List<Event> findLastNEventsForUser(@Param("userId") UUID userId, @Param("limit") Integer limit);
+
+    @Query("SELECT e FROM Event e JOIN e.categories c WHERE c.name IN :categories AND e NOT IN (SELECT m.event FROM Member m WHERE m.user.id = :userId)")
+    List<Event> findRecommendedEvents(@Param("categories") List<String> categories, @Param("userId") UUID userId);
+
 }
