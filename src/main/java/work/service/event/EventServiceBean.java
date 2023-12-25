@@ -157,7 +157,12 @@ public class EventServiceBean implements EventService {
         var members = event.getMembers().stream()
                 .filter(member -> member.getType() != AppMemberType.ROLE_HOST && member.getStatus() != AppMemberStatus.STATUS_INACTIVE)
                 .toList();
-        return memberMapper.toMemberForUserDtoList(members);
+        return members.stream().map(s ->
+                new MembersForUserDto(
+                        s.getUser().getId(),
+                        s.getUser().getUserDetails().getName(),
+                        s.getUser().getUserDetails().getLastName(),
+                        s.getType())).toList();
     }
 
     @Override
@@ -251,7 +256,7 @@ public class EventServiceBean implements EventService {
             eventPage = eventRepository.findEventsWithinRadiusWithPagination(searchEventDTO.latitude(),
                     searchEventDTO.longitude(), searchEventDTO.radius(), searchEventDTO.startDate(), pageable);
         } else {
-            eventPage= eventRepository.findEventsWithinRadiusWithPagination(searchEventDTO.latitude(),
+            eventPage = eventRepository.findEventsWithinRadiusWithPagination(searchEventDTO.latitude(),
                     searchEventDTO.longitude(), searchEventDTO.radius(), pageable);
         }
         if (searchEventDTO.selectedCategories() != null && !searchEventDTO.selectedCategories().isEmpty()) {
@@ -260,8 +265,7 @@ public class EventServiceBean implements EventService {
                     .filter(event -> event.getCategories().stream()
                             .anyMatch(category -> selectedCategoryNames.contains(category.getName())))
                     .toList();
-        }
-        else {
+        } else {
             return eventPage.stream()
                     .map(eventMapper::eventToEventsInRadiusDto)
                     .collect(Collectors.toList());
