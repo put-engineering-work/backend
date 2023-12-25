@@ -2,6 +2,7 @@ package work.web.event;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,8 +67,8 @@ public class EventControllerBean implements EventController {
     }
 
     @Override
-    public String isRegisteredInEvent(HttpServletRequest request, UUID eventId) {
-        return eventService.isUserRegisteredToEvent(request, eventId);
+    public ResponseObject isRegisteredInEvent(HttpServletRequest request, UUID eventId) {
+        return new ResponseObject(HttpStatus.OK, eventService.isUserRegisteredToEvent(request, eventId), null);
     }
 
     @Override

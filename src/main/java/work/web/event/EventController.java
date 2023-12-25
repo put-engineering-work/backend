@@ -98,7 +98,7 @@ public interface EventController {
     )
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/is-registered/{eventId}")
-    String isRegisteredInEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
+    ResponseObject isRegisteredInEvent(HttpServletRequest request, @PathVariable("eventId") UUID eventId);
 
     @Operation(summary = "Remove current user from event")
     @ApiResponses(
