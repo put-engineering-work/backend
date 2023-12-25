@@ -17,7 +17,7 @@ public class RequestUserDTO {
     @NotNull
     @Email
     @NotEmpty(message = "EMAIL_MUST_BY_NOT_EMPTY")
-    @Schema(description = "Email of an account.", example = "tutor@gmail.com")
+    @Schema(description = "Email of an account.", example = "leisure@gmail.com")
     private String email;
 
     @NotNull

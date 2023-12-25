@@ -1,5 +1,9 @@
 package work.util.security;
 
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import work.domain.AppUserRole;
 import work.util.exception.AuthenticationException;
 import work.util.exception.CustomException;
@@ -24,6 +28,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class JwtTokenProvider {
 
     /**
@@ -36,18 +41,21 @@ public class JwtTokenProvider {
     @Value("${security.jwt.token.expire-length:3600000}")
     private long validityInMilliseconds = 3600000; // 1h
     private MyUserDetails myUserDetails;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
+
     public JwtTokenProvider(String secretKey, long validityInMilliseconds) {
         this.secretKey = secretKey;
         this.validityInMilliseconds = validityInMilliseconds;
     }
 
-    public JwtTokenProvider(String secretKey, long validityInMilliseconds, MyUserDetails myUserDetails) {
+    public JwtTokenProvider(String secretKey, long validityInMilliseconds, @Lazy MyUserDetails myUserDetails) {
         this.secretKey = secretKey;
         this.validityInMilliseconds = validityInMilliseconds;
         this.myUserDetails = myUserDetails;
     }
 
-    public JwtTokenProvider(MyUserDetails myUserDetails) {
+    public JwtTokenProvider(@Lazy MyUserDetails myUserDetails) {
         this.myUserDetails = myUserDetails;
     }
 
@@ -63,9 +71,9 @@ public class JwtTokenProvider {
         //appUserRoles.add(AppUserRole.ROLE_CLIENT);
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("auth", appUserRoles.stream().map(
-                s ->
-                        new SimpleGrantedAuthority(
-                                s.getAuthority())).filter(Objects::nonNull)
+                        s ->
+                                new SimpleGrantedAuthority(
+                                        s.getAuthority())).filter(Objects::nonNull)
                 .collect(Collectors.toList()));
 
         Date now = new Date();
@@ -89,8 +97,8 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest req) {
-        if(req.getHeader("Authorization") == null){
-            throw new AuthenticationException("TOKEN_CANNOT_BE_EMPTY");
+        if (req.getHeader("Authorization") == null) {
+            throw new AuthenticationException();
         }
         String bearerToken = req.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {

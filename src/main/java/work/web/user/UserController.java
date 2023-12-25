@@ -1,6 +1,8 @@
 package work.web.user;
 
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.web.multipart.MultipartFile;
 import work.dto.ResponseObject;
 import work.dto.user.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,22 +28,21 @@ public interface UserController {
             @ApiResponse(responseCode = "400", description = "User already added")
     })
     @ResponseStatus(HttpStatus.ACCEPTED)
-    ResponseObject tutorRegisterAccount(@RequestBody @Valid RequestUserDTO requestUserDto);
-
+    ResponseObject userRegisterAccount(@RequestBody @Valid RequestUserDTO requestUserDto);
 
 
     // LOGIN
     @PostMapping("/signin")
-    @Operation(summary = "Endpoint to login user", hidden = true)
+    @Operation(summary = "Endpoint to login user")
     @ApiResponses(value = {//
             @ApiResponse(responseCode = "202", description = "Login successful"), //
             @ApiResponse(responseCode = "400", description = "Bad Request: User was not registered"), //
             @ApiResponse(responseCode = "401", description = "Wrong data supplied"), //
             @ApiResponse(responseCode = "422", description = "Verification code was sent once again"),
     })
-    ResponseObject login(@RequestBody RequestUserDTO userLoginDto);
+    ResponseObject login(@RequestBody RequestLoginDTO userLoginDto);
 
-    @PostMapping("/resetpassword/{email}")
+    @PostMapping("/resetpassword/{email}    ")
     @Operation(summary = "Endpoint to reset user password")
     @ApiResponses(value = {//
             @ApiResponse(responseCode = "400", description = "Something went wrong"), //
@@ -67,7 +68,7 @@ public interface UserController {
     @PutMapping("/reset-password")
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "Reset password", description = "Reset user password.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "PASSWORD_SUCCESSFULLY_UPDATED"),
     })
     ResponseObject resetPassword(HttpServletRequest request, @RequestBody ChangePasswordDTO password);
@@ -75,18 +76,28 @@ public interface UserController {
     @GetMapping("/user-details")
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "Get user details", description = "Get user details.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "USER_NOT_FOUND"),
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     GetUserDetailsDTO getUserDetails(HttpServletRequest request);
 
     @PutMapping("/user-details")
     @PreAuthorize("hasRole('ROLE_USER')")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "DATA_SUCCESSFULLY_UPDATED"),
     })
+    @SecurityRequirement(name = "Bearer Authentication")
     ResponseObject updateUserDetails(HttpServletRequest request, @RequestBody UpdateUserDetailsDTO detailsDTO);
 
+    @PatchMapping("/user-details/photo")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "DATA_SUCCESSFULLY_UPDATED"),
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
+    ResponseObject updateUserImage(HttpServletRequest request, @ModelAttribute MultipartFile photo);
 }

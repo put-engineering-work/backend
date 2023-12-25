@@ -9,15 +9,16 @@ import org.springframework.transaction.annotation.Transactional;
 import work.domain.UserDetails;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface UserDetailsRepository extends JpaRepository<UserDetails, Integer> {
+public interface UserDetailsRepository extends JpaRepository<UserDetails, UUID> {
 
     @Query(value = "select * from user_details ud right join public.users u on u.id = ud.user_id where u.id=:userId",nativeQuery = true)
-    Optional<UserDetails> findByUserId(Integer userId);
+    Optional<UserDetails> findByUserId(UUID userId);
 
     @Transactional
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "update user_details set user_id=:userId where id=:userDetailsId", nativeQuery = true)
-    void setUserDetailsId(@Param("userId") Integer userId, @Param("userDetailsId") Integer userDetailsId);
+    void setUserDetailsId(@Param("userId") UUID userId, @Param("userDetailsId") UUID userDetailsId);
 }

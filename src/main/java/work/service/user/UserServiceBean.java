@@ -1,5 +1,6 @@
 package work.service.user;
 
+import org.springframework.web.multipart.MultipartFile;
 import work.domain.AppUserRole;
 import work.domain.User;
 import work.dto.ResponseObject;
@@ -8,16 +9,16 @@ import work.dto.user.userdetails.GetUserDetailsDTO;
 import work.dto.user.userdetails.UpdateUserDetailsDTO;
 import work.repository.UserDetailsRepository;
 import work.repository.UserRepository;
+import work.service.authentication.AuthenticationService;
 import work.service.email.EmailDetails;
 import work.service.email.EmailService;
-import work.util.exception.AuthenticationException;
+import work.service.imageoperation.ImageOperationService;
 import work.util.exception.CustomException;
 import work.util.exception.UserNotFoundException;
 import work.util.mapstruct.UserMapper;
 import work.util.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,7 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -43,6 +43,7 @@ public class UserServiceBean implements UserService {
     private final UserDetailsRepository userDetailsRepository;
     private final UserMapper userMapper;
     private final EmailService emailService;
+    private final ImageOperationService imageOperationService;
 
 
     @Override
@@ -51,7 +52,7 @@ public class UserServiceBean implements UserService {
 
         if (userFromDb.isEmpty()) {
             user.setIsActivated(Boolean.FALSE);
-            String code = RandomStringUtils.randomAlphanumeric(30, 30);
+            String code = AuthenticationService.generateRandomAlphanumeric(30);
             user.setCode(code);
             user.setAppUserRoles(AppUserRole.ROLE_USER);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -130,7 +131,7 @@ public class UserServiceBean implements UserService {
         } else if (!tutor.get().getIsActivated()) {
             return new ResponseObject(HttpStatus.UNAUTHORIZED, "ACCOUNT_IS_NOT_ACTIVATED", null);
         } else {
-            String code = RandomStringUtils.randomAlphanumeric(30, 30);
+            String code = AuthenticationService.generateRandomAlphanumeric(30);
             tutor.get().setCode(code);
             tutor.get().setCodeTimeGenerated(ZonedDateTime.now());
             userRepository.save(tutor.get());
@@ -149,7 +150,7 @@ public class UserServiceBean implements UserService {
         }
         long hours = getHours(tutor);
         if (hours < 4) {
-            String newCode = RandomStringUtils.randomAlphanumeric(30, 30);
+            String newCode = AuthenticationService.generateRandomAlphanumeric(30);
             tutor.get().setCode(newCode);
             tutor.get().setCodeTimeGenerated(ZonedDateTime.now());
             userRepository.save(tutor.get());
@@ -180,19 +181,6 @@ public class UserServiceBean implements UserService {
         }
     }
 
-
-    @Override
-    public User getUserByToken(HttpServletRequest request) {
-        var tutor = userRepository.findByEmail(jwtTokenProvider.getUsername(jwtTokenProvider.resolveToken(request)));
-        if (tutor.isEmpty()) {
-            throw new AuthenticationException("ACCESS_DENIED");
-        } else {
-            return tutor.get();
-        }
-
-    }
-
-
     @Override
     @Transactional
     public ResponseObject resetPassword(User user, String password) {
@@ -202,14 +190,14 @@ public class UserServiceBean implements UserService {
     }
 
     @Override
-    public GetUserDetailsDTO getUserDetails(Integer userId) {
+    public GetUserDetailsDTO getUserDetails(UUID userId) {
         var userDetails = userDetailsRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
         return userMapper.getUserDetailsData(userDetails);
     }
 
     @Override
-    public ResponseObject updateUserDetails(UpdateUserDetailsDTO updateUserDetailsDTO, Integer userId) {
+    public ResponseObject updateUserDetails(UpdateUserDetailsDTO updateUserDetailsDTO, UUID userId) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
         var userDetails = userMapper.fromUpdateUserDetails(updateUserDetailsDTO);
@@ -220,6 +208,18 @@ public class UserServiceBean implements UserService {
         user.setUserDetails(userDetails);
         userRepository.save(user);
         return new ResponseObject(HttpStatus.ACCEPTED, "DATA_SUCCESSFULLY_UPDATED", null);
+    }
+
+    public ResponseObject updateUserImage(UUID userId, MultipartFile photo){
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
+        if (user.getUserDetails()!=null){
+            user.getUserDetails().setPhoto(imageOperationService.compressImage(photo, 0.5f));
+            userRepository.save(user);
+        }
+        return new ResponseObject(HttpStatus.OK, "DATA_SUCCESSFULLY_UPDATED", null);
+
+
     }
 
     public String refresh(String email) {

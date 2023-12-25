@@ -1,9 +1,11 @@
 package work.domain;
 
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "user_details")
@@ -15,8 +17,10 @@ import java.time.ZonedDateTime;
 public class UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     private String name;
 
@@ -27,6 +31,8 @@ public class UserDetails {
     private String phoneNumber;
 
     private ZonedDateTime birthDate;
+
+    private byte[] photo;
 
     @OneToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(nullable = false)
