@@ -8,10 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import work.domain.AppMemberStatus;
-import work.domain.AppMemberType;
-import work.domain.Event;
-import work.domain.Member;
+import work.domain.*;
 import work.dto.ResponseObject;
 import work.dto.event.create.CreateCommentDto;
 import work.dto.event.create.EventCreateDto;
@@ -22,10 +19,12 @@ import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.Host;
 import work.dto.event.get.certainevent.MembersForUserDto;
 import work.repository.CommentRepository;
+import work.repository.EventImageRepository;
 import work.repository.EventRepository;
 import work.repository.MemberRepository;
 import work.service.authentication.AuthenticationService;
 import work.service.geodata.GeodataService;
+import work.service.util.UtilService;
 import work.util.exception.CustomException;
 import work.util.mapstruct.CommentMapper;
 import work.util.mapstruct.EventMapper;
@@ -51,7 +50,11 @@ public class EventServiceBean implements EventService {
     private final CommentRepository commentRepository;
     private final MemberMapper memberMapper;
 
-    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService, CommentMapper commentMapper, CommentRepository commentRepository, MemberMapper memberMapper) {
+    private final EventImageRepository eventImageRepository;
+
+    private final UtilService utilService;
+
+    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService, CommentMapper commentMapper, CommentRepository commentRepository, MemberMapper memberMapper, EventImageRepository eventImageRepository, UtilService utilService) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.authenticationService = authenticationService;
@@ -60,34 +63,54 @@ public class EventServiceBean implements EventService {
         this.commentMapper = commentMapper;
         this.commentRepository = commentRepository;
         this.memberMapper = memberMapper;
+        this.eventImageRepository = eventImageRepository;
+        this.utilService = utilService;
     }
 
+    @Transactional
     public ResponseObject createEvent(HttpServletRequest request, EventCreateDto eventToCreate) {
         var user = authenticationService.getUserByToken(request);
         var event = eventMapper.fromCreateDto(eventToCreate);
-        Event finalEvent = event;
+        if (eventToCreate.photos() != null) {
+            Set<EventImage> eventImages = eventToCreate.photos().stream()
+                    .map(photo -> {
+                        byte[] compressedImage = utilService.compressImage(photo, 0.75f); // Сжатие изображения
+                        return EventImage.builder()
+                                .image(compressedImage)
+                                .event(event)
+                                .build();
+                    })
+                    .collect(Collectors.toSet());
+
+            event.setEventImages(eventImages);
+        }
+
         if (event.getAddress() == null || event.getAddress().isEmpty()) {
             geodataService.getAddressFromCoordinates(event.getLocation().getY(), event.getLocation().getX())
                     .subscribe(addressJson -> {
                         String address = extractAddressFromJson(addressJson);
-                        finalEvent.setAddress(address);
-                        var member = new Member();
-                        member.setUser(user);
-                        member.setType(AppMemberType.ROLE_HOST);
-                        member.setStatus(AppMemberStatus.STATUS_ACTIVE);
-                        member.setEvent(eventRepository.saveAndFlush(finalEvent));
-                        member = memberRepository.saveAndFlush(member);
+                        event.setAddress(address);
+                        saveEventAndMember(event, user);
                     });
         } else {
-            event = eventRepository.saveAndFlush(event);
-            var member = new Member();
-            member.setUser(user);
-            member.setType(AppMemberType.ROLE_HOST);
-            member.setStatus(AppMemberStatus.STATUS_ACTIVE);
-            member.setEvent(event);
-            member = memberRepository.saveAndFlush(member);
+            saveEventAndMember(event, user);
         }
+
         return new ResponseObject(HttpStatus.CREATED, "CREATED", null);
+    }
+
+    private void saveEventAndMember(Event event, User user) {
+        var savedEvent = eventRepository.saveAndFlush(event);
+        var member = new Member();
+        member.setUser(user);
+        member.setType(AppMemberType.ROLE_HOST);
+        member.setStatus(AppMemberStatus.STATUS_ACTIVE);
+        member.setEvent(savedEvent);
+        memberRepository.saveAndFlush(member);
+        if (event.getEventImages() != null) {
+            event.getEventImages().forEach(image -> image.setEvent(savedEvent));
+            eventImageRepository.saveAll(event.getEventImages());
+        }
     }
 
     @Override
@@ -140,6 +163,10 @@ public class EventServiceBean implements EventService {
     public CertainEventDto getCertainEvent(UUID id) {
         var event = eventRepository.findById(id)
                 .orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
+        event.getEventImages().forEach(eventImage -> {
+            byte[] decompressedData = utilService.decompressImage(eventImage.getImage());
+            eventImage.setImage(decompressedData);
+        });
         var response = eventMapper.toCertainEventDto(event);
         var host = memberRepository.findEventHost(id)
                 .orElseThrow(() -> new CustomException("NOT_FOUND", HttpStatus.NOT_FOUND));

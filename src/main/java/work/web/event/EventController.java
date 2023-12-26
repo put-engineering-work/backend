@@ -30,7 +30,7 @@ public interface EventController {
     })
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/create")
-    ResponseObject createEvent(HttpServletRequest request, @RequestBody EventCreateDto eventDto);
+    ResponseObject createEvent(HttpServletRequest request, @ModelAttribute EventCreateDto eventDto);
 
     @Operation(summary = "Create comment to event")
     @ApiResponses(
