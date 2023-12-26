@@ -13,6 +13,7 @@ import work.service.authentication.AuthenticationService;
 import work.service.email.EmailDetails;
 import work.service.email.EmailService;
 import work.service.imageoperation.ImageOperationService;
+import work.service.util.UtilService;
 import work.util.exception.CustomException;
 import work.util.exception.UserNotFoundException;
 import work.util.mapstruct.UserMapper;
@@ -43,7 +44,7 @@ public class UserServiceBean implements UserService {
     private final UserDetailsRepository userDetailsRepository;
     private final UserMapper userMapper;
     private final EmailService emailService;
-    private final ImageOperationService imageOperationService;
+    private final UtilService utilService;
 
 
     @Override
@@ -193,7 +194,9 @@ public class UserServiceBean implements UserService {
     public GetUserDetailsDTO getUserDetails(UUID userId) {
         var userDetails = userDetailsRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
-        return userMapper.getUserDetailsData(userDetails);
+        var response=userMapper.getUserDetailsData(userDetails);
+        response.setPhoto(utilService.decompressImage(response.getPhoto()));
+        return response;
     }
 
     @Override
@@ -210,11 +213,12 @@ public class UserServiceBean implements UserService {
         return new ResponseObject(HttpStatus.ACCEPTED, "DATA_SUCCESSFULLY_UPDATED", null);
     }
 
+    @Transactional
     public ResponseObject updateUserImage(UUID userId, MultipartFile photo){
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
         if (user.getUserDetails()!=null){
-            user.getUserDetails().setPhoto(imageOperationService.compressImage(photo, 0.5f));
+            user.getUserDetails().setPhoto(utilService.compressImage(photo, 0.5f));
             userRepository.save(user);
         }
         return new ResponseObject(HttpStatus.OK, "DATA_SUCCESSFULLY_UPDATED", null);

@@ -20,4 +20,6 @@ public class GetUserDetailsDTO {
     private String phoneNumber;
 
     private ZonedDateTime birthDate;
+
+    private byte[] photo;
 }

@@ -16,40 +16,42 @@ import java.util.Iterator;
 @Service
 public class UtilServiceBean implements UtilService {
 
-    public byte[] compressImage(MultipartFile file, float compressionQuality) throws IOException {
-        String fileExtension = getFileExtension(file);
-        InputStream input = file.getInputStream();
-        BufferedImage image = ImageIO.read(input);
+    public byte[] compressImage(MultipartFile file, float compressionQuality) {
+        try {
+            String fileExtension = getFileExtension(file);
+            InputStream input = file.getInputStream();
+            BufferedImage image = ImageIO.read(input);
 
-        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(fileExtension);
-        if (!writers.hasNext()) throw new IllegalStateException("No writers found for the format: " + fileExtension);
+            Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(fileExtension);
+            if (!writers.hasNext())
+                throw new IllegalStateException("No writers found for the format: " + fileExtension);
 
-        ImageWriter writer = writers.next();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
-        writer.setOutput(ios);
+            ImageWriter writer = writers.next();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
+            writer.setOutput(ios);
 
-        ImageWriteParam param = writer.getDefaultWriteParam();
-        if (param.canWriteCompressed()) {
-            param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionQuality(compressionQuality); // 0.0 - 1.0, 1.0 for highest quality
+            ImageWriteParam param = writer.getDefaultWriteParam();
+            if (param.canWriteCompressed()) {
+                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                param.setCompressionQuality(compressionQuality); // 0.0 - 1.0, 1.0 for highest quality
+            }
+            writer.write(null, new IIOImage(image, null, null), param);
+
+            ios.close();
+            outputStream.close();
+            input.close();
+            writer.dispose();
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            return null;
         }
-        writer.write(null, new IIOImage(image, null, null), param);
-
-        ios.close();
-        outputStream.close();
-        input.close();
-        writer.dispose();
-
-        return outputStream.toByteArray();
     }
 
     public byte[] decompressImage(byte[] compressedImageData) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(compressedImageData);
         byte[] imageBytes = null;
         try {
-
-
             ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream);
 
             Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
@@ -68,10 +70,11 @@ public class UtilServiceBean implements UtilService {
             imageBytes = outputStream.toByteArray();
 
             inputStream.close();
-            imageInputStream.close();
             outputStream.close();
+
         } catch (IOException e) {
             System.out.println(e);
+            return null;
         }
         return imageBytes;
     }
