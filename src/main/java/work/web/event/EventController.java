@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.UUID;
 
-//@Api(value = "Event", tags = "Event")
 @Tag(name = "Event", description = "Event API")
 public interface EventController {
     @Operation(summary = "Create a new event")

@@ -1,5 +1,6 @@
 package work.service.authentication;
 
+import org.springframework.http.server.ServerHttpRequest;
 import work.domain.User;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,8 @@ import java.util.stream.IntStream;
 
 public interface AuthenticationService {
     User getUserByToken(HttpServletRequest request);
+    User getUserByToken(String token);
+    User getUserByToken(ServerHttpRequest request);
     String extractRequestToken(HttpServletRequest request);
     Random RANDOM = new SecureRandom();
     String ALPHANUMERIC_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

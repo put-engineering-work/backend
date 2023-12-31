@@ -36,7 +36,7 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private AppMemberType type;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Message> messages = new HashSet<>();
 
 }

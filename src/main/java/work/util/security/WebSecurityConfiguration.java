@@ -23,7 +23,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         web.ignoring().antMatchers("/v3/api-docs/**",
                 "/configuration/ui",
                 "/swagger-resources/**",
@@ -41,6 +41,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/events/create/**",
                 "/user/signin",
                 "/user/signup"
+                ,
+                "/chat**"
         );
     }
 
@@ -51,6 +53,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/swagger-ui.html").permitAll()
+                .antMatchers("/chat/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
