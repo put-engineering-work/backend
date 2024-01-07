@@ -24,18 +24,20 @@ public class ChatControllerBean implements ChatController {
     @Override
     @MessageMapping("/send/{eventId}")
     @SendTo("/topic/messages/{eventId}")
-    public MessageDTO sendMessage(Principal Principal, @DestinationVariable("eventId") UUID eventId
-            ,
-                           @Payload MessageGetDTO messageDTO
+    public MessageDTO sendMessage(
+            Principal Principal,
+            @DestinationVariable("eventId") UUID eventId,
+            @Payload MessageGetDTO messageDTO
     ) {
-//        var messageDTO=new MessageGetDTO("");
         return chatService.sendMessage(Principal, eventId, messageDTO);
     }
 
     @Override
     @MessageMapping("/history/{eventId}")
     @SendTo("/topic/history/{eventId}")
-    public List<MessageDTO> getHistory(Principal principal, @DestinationVariable("eventId") UUID eventId) {
+    public List<MessageDTO> getHistory(
+            Principal principal,
+            @DestinationVariable("eventId") UUID eventId) {
         return chatService.getHistory(principal,eventId);
     }
 }
