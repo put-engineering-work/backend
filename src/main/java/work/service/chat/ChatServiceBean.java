@@ -1,17 +1,19 @@
 package work.service.chat;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 import work.dto.chat.MessageDTO;
 import work.repository.MemberRepository;
 import work.repository.MessageRepository;
 import work.repository.UserDetailsRepository;
+import work.repository.UserRepository;
 import work.service.authentication.AuthenticationService;
 import work.util.exception.AuthenticationException;
 import work.util.exception.CustomException;
+import work.util.exception.UserNotFoundException;
 import work.util.mapstruct.MessageMapper;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,18 +25,22 @@ public class ChatServiceBean implements ChatService {
     private final MessageMapper messageMapper;
     private final AuthenticationService authenticationService;
 
-    public ChatServiceBean(MessageRepository messageRepository, UserDetailsRepository userDetailsRepository, MemberRepository memberRepository, MessageMapper messageMapper, AuthenticationService authenticationService) {
+    private final UserRepository userRepository;
+
+    public ChatServiceBean(MessageRepository messageRepository, UserDetailsRepository userDetailsRepository, MemberRepository memberRepository, MessageMapper messageMapper, AuthenticationService authenticationService, UserRepository userRepository) {
         this.messageRepository = messageRepository;
         this.userDetailsRepository = userDetailsRepository;
         this.memberRepository = memberRepository;
         this.messageMapper = messageMapper;
         this.authenticationService = authenticationService;
+        this.userRepository = userRepository;
     }
 
 
     @Override
-    public MessageDTO sendMessage(ServerHttpRequest request, UUID eventId, MessageDTO messageDTO) {
-        var user = authenticationService.getUserByToken(request);
+    public MessageDTO sendMessage(Principal principal, UUID eventId, MessageDTO messageDTO) {
+        String userEmail = principal.getName();
+        var user = userRepository.findByEmail(userEmail).orElseThrow(()-> new UserNotFoundException("USER_NOT_FOUND"));
         var message = messageMapper.fromMessageDTO(messageDTO);
         var member = memberRepository.findMemberByUserIdAndEventId(user.getId(), eventId).orElseThrow(AuthenticationException::new);
         var event = member.getEvent();
@@ -50,7 +56,7 @@ public class ChatServiceBean implements ChatService {
     }
 
     @Override
-    public List<MessageDTO> getHistory(ServerHttpRequest request, UUID eventId) {
+    public List<MessageDTO> getHistory(Principal principal, UUID eventId) {
         var messages = messageRepository.findAll();
         var response = messageMapper.toListMessageDTO(messages);
         response = response.stream().peek(r -> {

@@ -1,10 +1,10 @@
 package work.web.chat;
 
-import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Controller;
 import work.dto.chat.MessageDTO;
 import work.service.chat.ChatService;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,12 +17,12 @@ public class ChatControllerBean implements ChatController {
     }
 
     @Override
-    public MessageDTO sendMessage(ServerHttpRequest request, UUID eventId, MessageDTO messageDTO) {
-        return chatService.sendMessage(request, eventId, messageDTO);
+    public MessageDTO sendMessage(Principal Principal, UUID eventId, MessageDTO messageDTO) {
+        return chatService.sendMessage(Principal, eventId, messageDTO);
     }
 
     @Override
-    public List<MessageDTO> getHistory(ServerHttpRequest request, UUID eventId) {
-        return chatService.getHistory(request,eventId);
+    public List<MessageDTO> getHistory(Principal principal, UUID eventId) {
+        return chatService.getHistory(principal,eventId);
     }
 }
