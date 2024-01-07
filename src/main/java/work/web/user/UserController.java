@@ -16,7 +16,6 @@ import work.dto.user.userdetails.UpdateUserDetailsDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.UUID;
 
 
 public interface UserController {
@@ -108,5 +107,5 @@ public interface UserController {
             @ApiResponse(responseCode = "400", description = "DATA_SUCCESSFULLY_UPDATED"),
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    UUID getMyId(HttpServletRequest request);
+    GetUserIdDTO getMyId(HttpServletRequest request);
 }

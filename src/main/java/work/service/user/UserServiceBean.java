@@ -4,6 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 import work.domain.AppUserRole;
 import work.domain.User;
 import work.dto.ResponseObject;
+import work.dto.user.GetUserIdDTO;
 import work.dto.user.UserToken;
 import work.dto.user.userdetails.GetUserDetailsDTO;
 import work.dto.user.userdetails.UpdateUserDetailsDTO;
@@ -12,7 +13,6 @@ import work.repository.UserRepository;
 import work.service.authentication.AuthenticationService;
 import work.service.email.EmailDetails;
 import work.service.email.EmailService;
-import work.service.imageoperation.ImageOperationService;
 import work.service.util.UtilService;
 import work.util.exception.CustomException;
 import work.util.exception.UserNotFoundException;
@@ -227,8 +227,8 @@ public class UserServiceBean implements UserService {
     }
 
     @Override
-    public UUID getMyId(HttpServletRequest request) {
-        return authenticationService.getUserByToken(request).getId();
+    public GetUserIdDTO getMyId(HttpServletRequest request) {
+        return new GetUserIdDTO(authenticationService.getUserByToken(request).getId());
     }
 
     public String refresh(String email) {

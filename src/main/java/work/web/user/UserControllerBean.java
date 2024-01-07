@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.UUID;
 
 
 @RestController
@@ -86,7 +85,7 @@ public class UserControllerBean implements UserController {
     }
 
     @Override
-    public UUID getMyId(HttpServletRequest request) {
+    public GetUserIdDTO getMyId(HttpServletRequest request) {
         return userService.getMyId(request);
     }
 }

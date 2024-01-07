@@ -3,6 +3,7 @@ package work.service.user;
 import org.springframework.web.multipart.MultipartFile;
 import work.domain.User;
 import work.dto.ResponseObject;
+import work.dto.user.GetUserIdDTO;
 import work.dto.user.userdetails.GetUserDetailsDTO;
 import work.dto.user.userdetails.UpdateUserDetailsDTO;
 
@@ -34,5 +35,5 @@ public interface UserService {
 
     ResponseObject updateUserImage(UUID userId, MultipartFile photo);
 
-    UUID getMyId(HttpServletRequest request);
+    GetUserIdDTO getMyId(HttpServletRequest request);
 }
