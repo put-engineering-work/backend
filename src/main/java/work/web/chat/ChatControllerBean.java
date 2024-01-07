@@ -1,5 +1,9 @@
 package work.web.chat;
 
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import work.dto.chat.MessageDTO;
 import work.dto.chat.MessageGetDTO;
@@ -18,7 +22,13 @@ public class ChatControllerBean implements ChatController {
     }
 
     @Override
-    public MessageDTO sendMessage(Principal Principal, UUID eventId, MessageGetDTO messageDTO) {
+    @MessageMapping("/send/{eventId}")
+    @SendTo("/topic/messages/{eventId}")
+    public MessageDTO sendMessage(Principal Principal, @DestinationVariable("eventId") UUID eventId
+            ,
+                           @Payload MessageGetDTO messageDTO
+    ) {
+//        var messageDTO=new MessageGetDTO("");
         return chatService.sendMessage(Principal, eventId, messageDTO);
     }
 

@@ -2,6 +2,7 @@ package work.service.chat;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import work.dto.chat.MessageDTO;
 import work.dto.chat.MessageGetDTO;
 import work.repository.MemberRepository;
@@ -39,6 +40,7 @@ public class ChatServiceBean implements ChatService {
 
 
     @Override
+    @Transactional
     public MessageDTO sendMessage(Principal principal, UUID eventId, MessageGetDTO messageDTO) {
         String userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow(()-> new UserNotFoundException("USER_NOT_FOUND"));
@@ -57,6 +59,7 @@ public class ChatServiceBean implements ChatService {
     }
 
     @Override
+    @Transactional
     public List<MessageDTO> getHistory(Principal principal, UUID eventId) {
         var messages = messageRepository.findAll();
         var response = messageMapper.toListMessageDTO(messages);
