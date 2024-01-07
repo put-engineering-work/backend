@@ -33,7 +33,9 @@ public class ChatControllerBean implements ChatController {
     }
 
     @Override
-    public List<MessageDTO> getHistory(Principal principal, UUID eventId) {
+    @MessageMapping("/history/{eventId}")
+    @SendTo("/topic/history/{eventId}")
+    public List<MessageDTO> getHistory(Principal principal, @DestinationVariable("eventId") UUID eventId) {
         return chatService.getHistory(principal,eventId);
     }
 }
