@@ -1,5 +1,7 @@
 package work.dto.chat;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,4 +17,9 @@ public class MessageDTO {
     private String message;
     private ZonedDateTime createdDate;
     private Sender sender;
+
+    @JsonCreator
+    public MessageDTO(@JsonProperty("message") String message) {
+        this.message = message;
+    }
 }
