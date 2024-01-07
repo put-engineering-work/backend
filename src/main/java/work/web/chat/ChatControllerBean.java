@@ -1,5 +1,6 @@
 package work.web.chat;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Controller
+@Slf4j
 public class ChatControllerBean implements ChatController {
     private final ChatService chatService;
 
@@ -25,11 +27,14 @@ public class ChatControllerBean implements ChatController {
     @MessageMapping("/send/{eventId}")
     @SendTo("/topic/messages/{eventId}")
     public MessageDTO sendMessage(
-            Principal Principal,
+            Principal principal,
             @DestinationVariable("eventId") UUID eventId,
             @Payload MessageGetDTO messageDTO
     ) {
-        return chatService.sendMessage(Principal, eventId, messageDTO);
+        log.info(principal.getName());
+        var response=chatService.sendMessage(principal, eventId, messageDTO);
+        log.info(response.toString());
+        return response;
     }
 
     @Override
@@ -38,6 +43,9 @@ public class ChatControllerBean implements ChatController {
     public List<MessageDTO> getHistory(
             Principal principal,
             @DestinationVariable("eventId") UUID eventId) {
-        return chatService.getHistory(principal,eventId);
+        var response=chatService.getHistory(principal,eventId);
+        log.info(principal.getName());
+        log.info(response.toString());
+        return response;
     }
 }

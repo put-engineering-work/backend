@@ -6,6 +6,7 @@ import work.dto.ResponseObject;
 import work.dto.user.userdetails.GetUserDetailsDTO;
 import work.dto.user.userdetails.UpdateUserDetailsDTO;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
 public interface UserService {
@@ -32,4 +33,6 @@ public interface UserService {
     ResponseObject updateUserDetails(UpdateUserDetailsDTO updateUserDetailsDTO, UUID userId);
 
     ResponseObject updateUserImage(UUID userId, MultipartFile photo);
+
+    UUID getMyId(HttpServletRequest request);
 }

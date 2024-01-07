@@ -27,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -45,6 +46,7 @@ public class UserServiceBean implements UserService {
     private final UserMapper userMapper;
     private final EmailService emailService;
     private final UtilService utilService;
+    private final AuthenticationService authenticationService;
 
 
     @Override
@@ -222,8 +224,11 @@ public class UserServiceBean implements UserService {
             userRepository.save(user);
         }
         return new ResponseObject(HttpStatus.OK, "DATA_SUCCESSFULLY_UPDATED", null);
+    }
 
-
+    @Override
+    public UUID getMyId(HttpServletRequest request) {
+        return authenticationService.getUserByToken(request).getId();
     }
 
     public String refresh(String email) {

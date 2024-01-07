@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.UUID;
 
 
 @RestController
@@ -82,5 +83,10 @@ public class UserControllerBean implements UserController {
     @Override
     public ResponseObject updateUserImage(HttpServletRequest request, MultipartFile photo) {
         return userService.updateUserImage(authenticationService.getUserByToken(request).getId(), photo);
+    }
+
+    @Override
+    public UUID getMyId(HttpServletRequest request) {
+        return userService.getMyId(request);
     }
 }

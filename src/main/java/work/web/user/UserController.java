@@ -16,6 +16,7 @@ import work.dto.user.userdetails.UpdateUserDetailsDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.UUID;
 
 
 public interface UserController {
@@ -99,4 +100,13 @@ public interface UserController {
     })
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseObject updateUserImage(HttpServletRequest request, @ModelAttribute MultipartFile photo);
+
+    @GetMapping("/user-id")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "DATA_SUCCESSFULLY_UPDATED"),
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
+    UUID getMyId(HttpServletRequest request);
 }
