@@ -2,6 +2,7 @@ package work.web.chat;
 
 import org.springframework.stereotype.Controller;
 import work.dto.chat.MessageDTO;
+import work.dto.chat.MessageGetDTO;
 import work.service.chat.ChatService;
 
 import java.security.Principal;
@@ -17,7 +18,7 @@ public class ChatControllerBean implements ChatController {
     }
 
     @Override
-    public MessageDTO sendMessage(Principal Principal, UUID eventId, MessageDTO messageDTO) {
+    public MessageDTO sendMessage(Principal Principal, UUID eventId, MessageGetDTO messageDTO) {
         return chatService.sendMessage(Principal, eventId, messageDTO);
     }
 

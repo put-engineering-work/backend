@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import work.domain.Message;
 import work.dto.chat.MessageDTO;
+import work.dto.chat.MessageGetDTO;
 
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface MessageMapper {
     List<MessageDTO> toListMessageDTO(List<Message> messages);
 
     Message fromMessageDTO(MessageDTO messageDTO);
+
+    Message fromMessageGetDTO(MessageGetDTO messageGetDTO);
 }

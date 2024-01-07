@@ -18,8 +18,8 @@ public class MessageDTO {
     private ZonedDateTime createdDate;
     private Sender sender;
 
-    @JsonCreator
-    public MessageDTO(@JsonProperty("message") String message) {
-        this.message = message;
-    }
+//    @JsonCreator
+//    public MessageDTO(@JsonProperty("message") String message) {
+//        this.message = message;
+//    }
 }

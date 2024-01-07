@@ -3,6 +3,7 @@ package work.service.chat;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import work.dto.chat.MessageDTO;
+import work.dto.chat.MessageGetDTO;
 import work.repository.MemberRepository;
 import work.repository.MessageRepository;
 import work.repository.UserDetailsRepository;
@@ -38,10 +39,10 @@ public class ChatServiceBean implements ChatService {
 
 
     @Override
-    public MessageDTO sendMessage(Principal principal, UUID eventId, MessageDTO messageDTO) {
+    public MessageDTO sendMessage(Principal principal, UUID eventId, MessageGetDTO messageDTO) {
         String userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow(()-> new UserNotFoundException("USER_NOT_FOUND"));
-        var message = messageMapper.fromMessageDTO(messageDTO);
+        var message = messageMapper.fromMessageGetDTO(messageDTO);
         var member = memberRepository.findMemberByUserIdAndEventId(user.getId(), eventId).orElseThrow(AuthenticationException::new);
         var event = member.getEvent();
         message.setUserId(user.getId());
