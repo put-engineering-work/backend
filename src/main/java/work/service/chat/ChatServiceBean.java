@@ -16,6 +16,7 @@ import work.util.exception.UserNotFoundException;
 import work.util.mapstruct.MessageMapper;
 
 import java.security.Principal;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,6 +51,7 @@ public class ChatServiceBean implements ChatService {
         message.setUserId(user.getId());
         message.setEvent(event);
         message.setMember(member);
+        message.setCreatedDate(ZonedDateTime.now());
         message = messageRepository.saveAndFlush(message);
         var response = messageMapper.toMessageDTO(message);
         var userDetails = userDetailsRepository.findDetailsByUserId(user.getId()).orElseThrow(AuthenticationException::new);
