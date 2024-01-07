@@ -57,7 +57,7 @@ public class ChatServiceBean implements ChatService {
         var userDetails = userDetailsRepository.findDetailsByUserId(user.getId()).orElseThrow(AuthenticationException::new);
         response.getSender().setName(userDetails.getName());
         response.getSender().setLastname(userDetails.getLastName());
-        if(response.getSender().getSenderId().equals(user.getId())){
+        if(response.getSender().getSenderId()==user.getId()){
             response.setIsOwner(Boolean.TRUE);
         }
         else
@@ -75,7 +75,7 @@ public class ChatServiceBean implements ChatService {
                     new CustomException("USER_NOT_FOUND", HttpStatus.FORBIDDEN));
             r.getSender().setName(userDetails.getName());
             r.getSender().setLastname(userDetails.getLastName());
-            if (r.getSender().getSenderId().equals(userDetails.getUser().getId())) {
+            if (r.getSender().getSenderId()==userDetails.getUser().getId()) {
                 r.setIsOwner(Boolean.TRUE);
             } else {
                 r.setIsOwner(Boolean.FALSE);
