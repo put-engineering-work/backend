@@ -57,19 +57,29 @@ public class ChatServiceBean implements ChatService {
         var userDetails = userDetailsRepository.findDetailsByUserId(user.getId()).orElseThrow(AuthenticationException::new);
         response.getSender().setName(userDetails.getName());
         response.getSender().setLastname(userDetails.getLastName());
+        if(response.getSender().getSenderId().equals(user.getId())){
+            response.setIsOwner(Boolean.TRUE);
+        }
+        else
+            response.setIsOwner(Boolean.FALSE);
         return response;
     }
 
     @Override
     @Transactional
     public List<MessageDTO> getHistory(Principal principal, UUID eventId) {
-        var messages = messageRepository.findAll();
+        var messages = messageRepository.findByEventId(eventId);
         var response = messageMapper.toListMessageDTO(messages);
         response = response.stream().peek(r -> {
             var userDetails = userDetailsRepository.findDetailsByUserId(r.getSender().getSenderId()).orElseThrow(() ->
                     new CustomException("USER_NOT_FOUND", HttpStatus.FORBIDDEN));
             r.getSender().setName(userDetails.getName());
             r.getSender().setLastname(userDetails.getLastName());
+            if (r.getSender().getSenderId().equals(userDetails.getUser().getId())) {
+                r.setIsOwner(Boolean.TRUE);
+            } else {
+                r.setIsOwner(Boolean.FALSE);
+            }
         }).toList();
         return response;
     }

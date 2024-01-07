@@ -16,7 +16,6 @@ public record EventCreateDto(
         String description,
 
         @Schema(description = "Start date and time of the event", example = "2023-12-01T20:00:00+01:00")
-//        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
         String startDate,
 
         @Schema(description = "End date and time of the event", example = "2023-12-01T23:00:00+01:00")

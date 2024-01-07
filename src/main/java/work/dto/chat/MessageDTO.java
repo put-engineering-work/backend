@@ -16,10 +16,6 @@ public class MessageDTO {
     private UUID id;
     private String message;
     private ZonedDateTime createdDate;
+    private Boolean isOwner=Boolean.FALSE;
     private Sender sender;
-
-//    @JsonCreator
-//    public MessageDTO(@JsonProperty("message") String message) {
-//        this.message = message;
-//    }
 }

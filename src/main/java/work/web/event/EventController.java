@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import work.dto.ResponseObject;
 import work.dto.event.create.CreateCommentDto;
@@ -28,7 +29,7 @@ public interface EventController {
             @ApiResponse(responseCode = "400", description = "Invalid event data provided")
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @PostMapping("/create")
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseObject createEvent(HttpServletRequest request, @ModelAttribute EventCreateDto eventDto);
 
     @Operation(summary = "Create comment to event")
