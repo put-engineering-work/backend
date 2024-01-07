@@ -15,8 +15,4 @@ public class MessageDTO {
     private String message;
     private ZonedDateTime createdDate;
     private Sender sender;
-
-    public MessageDTO(String message) {
-        this.message = message;
-    }
 }
