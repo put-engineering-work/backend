@@ -1,13 +1,11 @@
 package work.user.dto;
 
-import work.user.domain.AppUserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @ToString
 public class ResponseObject {
@@ -17,8 +15,6 @@ public class ResponseObject {
     private String message;
     @Schema(description = "authentication token", example = "gfrekjn123kmfvkq")
     private String token;
-    @Schema(description = "User role", example = "ROLE_USER")
-    private AppUserRole appUserRole;
 
     public ResponseObject(HttpStatus code, String message, String token) {
         this.code = code;
