@@ -136,4 +136,11 @@ public interface EventController {
     })
     @PostMapping("/pageable/{pageSize}/{pageNumber}")
     List<EventsInRadiusDto> getEventsWithPagination(@PathVariable("pageSize") Integer pageSize, @PathVariable("pageNumber") Integer pageNumber, SearchEventDTO searchEventDTO);
+
+    @Operation(summary = "Get user events")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK")
+    })
+    @GetMapping("/history")
+    List<EventsInRadiusDto> getAllUserEvents(HttpServletRequest request);
 }

@@ -302,6 +302,13 @@ public class EventServiceBean implements EventService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<EventsInRadiusDto> getAllUserEvents(HttpServletRequest request) {
+        var user = authenticationService.getUserByToken(request);
+        var events = eventRepository.findAllUserEvents(user.getId());
+        return events.stream().map(eventMapper::eventToEventsInRadiusDto).collect(Collectors.toList());
+    }
+
     private String extractAddressFromJson(String addressJson) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {

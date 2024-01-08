@@ -90,4 +90,9 @@ public class EventControllerBean implements EventController {
     public List<EventsInRadiusDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO) {
         return eventService.getEventsWithPagination(pageSize, pageNumber, searchEventDTO);
     }
+
+    @Override
+    public List<EventsInRadiusDto> getAllUserEvents(HttpServletRequest request) {
+        return eventService.getAllUserEvents(request);
+    }
 }

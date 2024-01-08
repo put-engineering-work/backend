@@ -89,4 +89,6 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     @Query("SELECT e FROM Event e JOIN e.categories c WHERE c.name IN :categories AND e NOT IN (SELECT m.event FROM Member m WHERE m.user.id = :userId)")
     List<Event> findRecommendedEvents(@Param("categories") List<String> categories, @Param("userId") UUID userId);
 
+    @Query(value = "select * from events e join members m on e.id = m.event_id where user_id=:userId",nativeQuery = true)
+    List<Event> findAllUserEvents(@Param("userId") UUID userId);
 }
