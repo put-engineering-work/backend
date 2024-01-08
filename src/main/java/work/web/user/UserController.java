@@ -31,20 +31,19 @@ public interface UserController {
     ResponseObject userRegisterAccount(@RequestBody @Valid RequestUserDTO requestUserDto);
 
 
-    // LOGIN
     @PostMapping("/signin")
     @Operation(summary = "Endpoint to login user")
-    @ApiResponses(value = {//
-            @ApiResponse(responseCode = "202", description = "Login successful"), //
-            @ApiResponse(responseCode = "400", description = "Bad Request: User was not registered"), //
-            @ApiResponse(responseCode = "401", description = "Wrong data supplied"), //
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Login successful"),
+            @ApiResponse(responseCode = "400", description = "Bad Request: User was not registered"),
+            @ApiResponse(responseCode = "401", description = "Wrong data supplied"),
             @ApiResponse(responseCode = "422", description = "Verification code was sent once again"),
     })
     ResponseObject login(@RequestBody RequestLoginDTO userLoginDto);
 
     @PostMapping("/resetpassword/{email}    ")
     @Operation(summary = "Endpoint to reset user password")
-    @ApiResponses(value = {//
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "400", description = "Something went wrong"), //
             @ApiResponse(responseCode = "422", description = "Invalid username/password supplied")})
     ResponseObject resetPassword(@PathVariable("email") String email);
@@ -100,4 +99,13 @@ public interface UserController {
     })
     @SecurityRequirement(name = "Bearer Authentication")
     ResponseObject updateUserImage(HttpServletRequest request, @ModelAttribute MultipartFile photo);
+
+    @GetMapping("/user-id")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "DATA_SUCCESSFULLY_UPDATED"),
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
+    GetUserIdDTO getMyId(HttpServletRequest request);
 }

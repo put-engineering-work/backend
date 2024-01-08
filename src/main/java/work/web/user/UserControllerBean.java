@@ -83,4 +83,9 @@ public class UserControllerBean implements UserController {
     public ResponseObject updateUserImage(HttpServletRequest request, MultipartFile photo) {
         return userService.updateUserImage(authenticationService.getUserByToken(request).getId(), photo);
     }
+
+    @Override
+    public GetUserIdDTO getMyId(HttpServletRequest request) {
+        return userService.getMyId(request);
+    }
 }

@@ -21,4 +21,7 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, UUID> 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "update user_details set user_id=:userId where id=:userDetailsId", nativeQuery = true)
     void setUserDetailsId(@Param("userId") UUID userId, @Param("userDetailsId") UUID userDetailsId);
+
+    @Query(value = "select ud.* from user_details ud right join public.users u on u.id = ud.user_id where u.id=:userId", nativeQuery = true)
+    Optional<UserDetails> findDetailsByUserId(@Param("userId") UUID userId);
 }

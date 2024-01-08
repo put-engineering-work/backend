@@ -37,4 +37,6 @@ public interface EventService {
     Integer getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO);
 
     List<EventsInRadiusDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO);
+
+    List<EventsInRadiusDto> getAllUserEvents(HttpServletRequest request);
 }
