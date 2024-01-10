@@ -1,8 +1,10 @@
 package work.dto.event.get;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import work.domain.EventImage;
 
 import java.time.ZonedDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 public record EventsInRadiusDto(
@@ -26,7 +28,9 @@ public record EventsInRadiusDto(
         double latitude,
 
         @Schema(description = "Geographical longitude of the event location", example = "21.0122")
-        double longitude
+        double longitude,
+
+        Set<EventImage> images
 //        ,
 
 //        Set<Member> members,
