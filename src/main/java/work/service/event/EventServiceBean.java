@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -163,10 +164,13 @@ public class EventServiceBean implements EventService {
     public CertainEventDto getCertainEvent(UUID id) {
         var event = eventRepository.findById(id)
                 .orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
-        event.getEventImages().forEach(eventImage -> {
-            byte[] decompressedData = utilService.decompressImage(eventImage.getImage());
-            eventImage.setImage(decompressedData);
-        });
+        List<CompletableFuture<Void>> futures = event.getEventImages().stream()
+                .map(eventImage -> CompletableFuture.runAsync(() -> {
+                    byte[] decompressedData = utilService.decompressImage(eventImage.getImage());
+                    eventImage.setImage(decompressedData);
+                }))
+                .toList();
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         var response = eventMapper.toCertainEventDto(event);
         var host = memberRepository.findEventHost(id)
                 .orElseThrow(() -> new CustomException("NOT_FOUND", HttpStatus.NOT_FOUND));
