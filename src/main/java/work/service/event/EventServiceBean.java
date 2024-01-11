@@ -73,18 +73,25 @@ public class EventServiceBean implements EventService {
         var user = authenticationService.getUserByToken(request);
         var event = eventMapper.fromCreateDto(eventToCreate);
         if (eventToCreate.photos() != null) {
-            Set<EventImage> eventImages = eventToCreate.photos().stream()
-                    .map(photo -> {
+            List<CompletableFuture<EventImage>> futures = eventToCreate.photos().stream()
+                    .map(photo -> CompletableFuture.supplyAsync(() -> {
                         byte[] compressedImage = utilService.compressImage(photo, 0.75f); // Сжатие изображения
                         return EventImage.builder()
                                 .image(compressedImage)
                                 .event(event)
                                 .build();
-                    })
+                    }))
+                    .toList();
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+            Set<EventImage> eventImages = futures.stream()
+                    .map(CompletableFuture::join)
                     .collect(Collectors.toSet());
 
             event.setEventImages(eventImages);
         }
+
 
         if (event.getAddress() == null || event.getAddress().isEmpty()) {
             geodataService.getAddressFromCoordinates(event.getLocation().getY(), event.getLocation().getX())
