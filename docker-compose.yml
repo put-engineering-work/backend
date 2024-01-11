@@ -23,8 +23,8 @@ services:
 
   adminer:
     image: adminer
-    networks:
-      - leisure-link
+    # networks:
+      # - leisure-link
     labels:
       - traefik.http.routers.adminer.rule=Host(`adminer.localhost`)
 
@@ -37,8 +37,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: leisurelink
-    networks:
-      - leisure-link
+    # networks:
+      # - leisure-link
 
   proxy:
     image: traefik:v2.10
@@ -48,8 +48,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command:
       - --providers.docker
-    networks:
-      - leisure-link
+    # networks:
+      # - leisure-link
 
   redis:
     image: redis:latest
@@ -57,6 +57,6 @@ services:
     ports:
       - "6379:6379"
 
-networks:
-  leisure-link:
-    external: true
+# networks:
+  # leisure-link:
+    # external: true
