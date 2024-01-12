@@ -20,6 +20,9 @@ public record SearchEventDTO(
         ZonedDateTime startDate,
         
         @Schema(description = "List of selected categories")
-        List<String> selectedCategories
+        List<String> selectedCategories,
+
+        @Schema(description = "event name")
+        String eventName
 ) {
 }

@@ -8,6 +8,7 @@ import work.domain.Event;
 import work.dto.event.create.EventCreateDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.certainevent.CertainEventDto;
+import work.dto.event.get.search.EventDto;
 
 
 @Mapper(componentModel = "spring")
@@ -28,30 +29,11 @@ public interface EventMapper {
         return geometryFactory.createPoint(new Coordinate(eventCreateDto.longitude(), eventCreateDto.latitude()));
     }
 
-//    @AfterMapping
-//    default void compressAndLinkImages(@MappingTarget Event event, EventCreateDto eventCreateDto, UtilService utilService) {
-//        if (eventCreateDto.startDate() != null) {
-//            event.setStartDate(ZonedDateTime.parse(eventCreateDto.startDate()));
-//        }
-//        if (eventCreateDto.endDate() != null) {
-//            event.setEndDate(ZonedDateTime.parse(eventCreateDto.endDate()));
-//        }
-//        if (eventCreateDto.photos() != null) {
-//            Set<EventImage> eventImages = eventCreateDto.photos().stream()
-//                    .map(photo -> {
-//                        byte[] compressedImage = utilService.compressImage(photo, 0.75f);
-//                        return EventImage.builder()
-//                                .image(compressedImage)
-//                                .event(event)
-//                                .build();
-//                    })
-//                    .collect(Collectors.toSet());
-//
-//            event.setEventImages(eventImages);
-//        }
-//    }
-
     @Mapping(target = "longitude", expression = "java(event.getLocation().getX())")
     @Mapping(target = "latitude", expression = "java(event.getLocation().getY())")
     CertainEventDto toCertainEventDto(Event event);
+
+    @Mapping(target = "longitude", expression = "java(event.getLocation().getX())")
+    @Mapping(target = "latitude", expression = "java(event.getLocation().getY())")
+    EventDto eventToEventDto(Event event);
 }

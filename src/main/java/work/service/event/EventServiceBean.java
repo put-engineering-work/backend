@@ -2,7 +2,9 @@ package work.service.event;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import work.dto.event.get.SearchEventDTO;
 import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.Host;
 import work.dto.event.get.certainevent.MembersForUserDto;
+import work.dto.event.get.search.EventDto;
 import work.repository.CommentRepository;
 import work.repository.EventImageRepository;
 import work.repository.EventRepository;
@@ -31,12 +34,10 @@ import work.util.mapstruct.EventMapper;
 import work.util.mapstruct.MemberMapper;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -145,7 +146,6 @@ public class EventServiceBean implements EventService {
     }
 
     @Transactional
-//    @Cacheable(value = "eventsInRadius", key = "#searchEventDTO")
     public List<EventsInRadiusDto> getEventsWithinRadius(HttpServletRequest request, SearchEventDTO searchEventDTO) {
         List<Event> events;
         if (searchEventDTO.startDate() != null) {
@@ -160,6 +160,11 @@ public class EventServiceBean implements EventService {
                             .anyMatch(category -> selectedCategoryNames.contains(category.getName())))
                     .collect(Collectors.toList());
         }
+
+        if (StringUtils.isNotBlank(searchEventDTO.eventName())) {
+            events = events.stream().filter(e -> e.getName().contains(searchEventDTO.eventName())).toList();
+        }
+
         return events.stream()
                 .map(eventMapper::eventToEventsInRadiusDto)
                 .collect(Collectors.toList());
@@ -257,11 +262,12 @@ public class EventServiceBean implements EventService {
     }
 
     @Override
-    public List<EventsInRadiusDto> getLastNEvents(Integer number) {
+    public List<EventDto> getLastNEvents(Integer number) {
         var events = eventRepository.findLastNEvents(number, ZonedDateTime.now());
-        return events.stream()
-                .map(eventMapper::eventToEventsInRadiusDto)
-                .collect(Collectors.toList());
+        var response = events.stream()
+                .map(eventMapper::eventToEventDto)
+                .toList();
+        return getEventDtos(response);
     }
 
     @Override
@@ -280,22 +286,28 @@ public class EventServiceBean implements EventService {
                             .anyMatch(category -> selectedCategoryNames.contains(category.getName())))
                     .collect(Collectors.toList());
         }
+        if (StringUtils.isNotBlank(searchEventDTO.eventName())) {
+            events = events.stream().filter(e -> e.getName().contains(searchEventDTO.eventName())).toList();
+        }
         int totalEvents = events.size();
         return (int) Math.ceil((double) totalEvents / numberOfEventOnPage);
     }
 
     @Override
     @Transactional
-    public List<EventsInRadiusDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO) {
+    public List<EventDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Event> eventPage;
         List<Event> result;
+        List<EventDto> response;
         if (searchEventDTO.startDate() != null) {
             eventPage = eventRepository.findEventsWithinRadiusWithPagination(searchEventDTO.latitude(),
                     searchEventDTO.longitude(), searchEventDTO.radius(), searchEventDTO.startDate(), pageable);
+            eventPage = filterByNameOfEvent(searchEventDTO, eventPage);
         } else {
             eventPage = eventRepository.findEventsWithinRadiusWithPagination(searchEventDTO.latitude(),
                     searchEventDTO.longitude(), searchEventDTO.radius(), pageable);
+            eventPage = filterByNameOfEvent(searchEventDTO, eventPage);
         }
         if (searchEventDTO.selectedCategories() != null && !searchEventDTO.selectedCategories().isEmpty()) {
             Set<String> selectedCategoryNames = new HashSet<>(searchEventDTO.selectedCategories());
@@ -304,20 +316,50 @@ public class EventServiceBean implements EventService {
                             .anyMatch(category -> selectedCategoryNames.contains(category.getName())))
                     .toList();
         } else {
-            return eventPage.stream()
-                    .map(eventMapper::eventToEventsInRadiusDto)
+            response = eventPage.stream()
+                    .map(eventMapper::eventToEventDto)
                     .collect(Collectors.toList());
+            return getEventDtos(response);
         }
-        return result.stream()
-                .map(eventMapper::eventToEventsInRadiusDto)
-                .collect(Collectors.toList());
+        response = result.stream()
+                .map(eventMapper::eventToEventDto)
+                .toList();
+
+        return getEventDtos(response);
+    }
+
+    private Page<Event> filterByNameOfEvent(SearchEventDTO searchEventDTO, Page<Event> eventPage) {
+        if (StringUtils.isNotBlank(searchEventDTO.eventName())) {
+            List<Event> filteredEvents = eventPage.getContent().stream()
+                    .filter(e -> e.getName().contains(searchEventDTO.eventName()))
+                    .collect(Collectors.toList());
+
+            eventPage = new PageImpl<>(filteredEvents,
+                    PageRequest.of(eventPage.getNumber(), eventPage.getSize()),
+                    eventPage.getTotalElements());
+        }
+        return eventPage;
     }
 
     @Override
-    public List<EventsInRadiusDto> getAllUserEvents(HttpServletRequest request) {
+    public List<EventDto> getAllUserEvents(HttpServletRequest request) {
         var user = authenticationService.getUserByToken(request);
         var events = eventRepository.findAllUserEvents(user.getId());
-        return events.stream().map(eventMapper::eventToEventsInRadiusDto).collect(Collectors.toList());
+        var response = events.stream().map(eventMapper::eventToEventDto).toList();
+        return getEventDtos(response);
+    }
+
+    @NotNull
+    private List<EventDto> getEventDtos(List<EventDto> response) {
+        response.forEach(r -> {
+            List<CompletableFuture<Void>> futures = r.getEventImages().stream()
+                    .map(p -> CompletableFuture.runAsync(() -> p.setImage(utilService.decompressImage(p.getImage()))))
+                    .toList();
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        });
+
+        return response;
     }
 
     private String extractAddressFromJson(String addressJson) {

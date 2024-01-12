@@ -28,15 +28,6 @@ public record EventsInRadiusDto(
         double latitude,
 
         @Schema(description = "Geographical longitude of the event location", example = "21.0122")
-        double longitude,
-
-        Set<EventImage> images
-//        ,
-
-//        Set<Member> members,
-//        Set<EventImage> eventImages,
-//        Set<EventCategory> categories,
-//
-//        Set<Comment> comments
+        double longitude
 ) {
 }

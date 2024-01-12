@@ -15,6 +15,7 @@ import work.dto.event.get.SearchEventDTO;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.MembersForUserDto;
+import work.dto.event.get.search.EventDto;
 
 import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletRequest;
@@ -119,7 +120,7 @@ public interface EventController {
     })
     @GetMapping("/last/{number}")
     @PermitAll
-    List<EventsInRadiusDto> getLastNEvents(@PathVariable("number") Integer number);
+    List<EventDto> getLastNEvents(@PathVariable("number") Integer number);
 
 
     @Operation(summary = "Get number of pages")
@@ -135,12 +136,12 @@ public interface EventController {
             @ApiResponse(responseCode = "200", description = "OK")
     })
     @PostMapping("/pageable/{pageSize}/{pageNumber}")
-    List<EventsInRadiusDto> getEventsWithPagination(@PathVariable("pageSize") Integer pageSize, @PathVariable("pageNumber") Integer pageNumber, SearchEventDTO searchEventDTO);
+    List<EventDto> getEventsWithPagination(@PathVariable("pageSize") Integer pageSize, @PathVariable("pageNumber") Integer pageNumber, SearchEventDTO searchEventDTO);
 
     @Operation(summary = "Get user events")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK")
     })
     @GetMapping("/history")
-    List<EventsInRadiusDto> getAllUserEvents(HttpServletRequest request);
+    List<EventDto> getAllUserEvents(HttpServletRequest request);
 }

@@ -42,7 +42,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/user/signin",
                 "/user/signup"
                 ,
-                "/chat**"
+                "/chat**",
+                "/autocomplete/**"
         );
     }
 
