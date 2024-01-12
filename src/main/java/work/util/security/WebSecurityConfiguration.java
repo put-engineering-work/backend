@@ -43,7 +43,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 "/user/signup"
                 ,
                 "/chat**",
-                "/autocomplete/**"
+                "/geodata/**"
         );
     }
 
