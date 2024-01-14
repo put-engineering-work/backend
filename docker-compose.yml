@@ -1,30 +1,30 @@
 version: "3.3"
 services:
-#  app:
-#    image: openjdk:17
-#    container_name: leisure-link-backend
-#    ports:
-#      - "8085:8085" # Port aplikacji
-#      - "5005:5005" # Port dla debugowania
-#    volumes:
-#      - ./target/leisure-link.jar:/target/leisure-link.jar
-#    depends_on:
-#      - postgres
-#    environment:
-#      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-#    command: java -jar /target/leisure-link.jar
-#    # Service health check
-#    healthcheck:
-#      test: curl -f http://localhost:8085/profile || exit 1
-#      interval: 1m
-#      timeout: 10s
-#      retries: 2
+  #  app:
+  #    image: openjdk:17
+  #    container_name: leisure-link-backend
+  #    ports:
+  #      - "8085:8085" # Port aplikacji
+  #      - "5005:5005" # Port dla debugowania
+  #    volumes:
+  #      - ./target/leisure-link.jar:/target/leisure-link.jar
+  #    depends_on:
+  #      - postgres
+  #    environment:
+  #      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+  #    command: java -jar /target/leisure-link.jar
+  #    # Service health check
+  #    healthcheck:
+  #      test: curl -f http://localhost:8085/profile || exit 1
+  #      interval: 1m
+  #      timeout: 10s
+  #      retries: 2
 
 
   adminer:
     image: adminer
-    # networks:
-      # - leisure-link
+      # networks:
+    # - leisure-link
     labels:
       - traefik.http.routers.adminer.rule=Host(`adminer.localhost`)
 
@@ -37,7 +37,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: leisurelink
-    # networks:
+      # networks:
       # - leisure-link
 
   proxy:
@@ -48,7 +48,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command:
       - --providers.docker
-    # networks:
+      # networks:
       # - leisure-link
 
   redis:
@@ -57,6 +57,15 @@ services:
     ports:
       - "6379:6379"
 
-# networks:
-  # leisure-link:
+#  flyway:
+#    image: flyway/flyway:latest
+#    command: -url=jdbc:postgresql://postgres:5432/leisurelink -schemas=public -user=postgres -password=postgres -baselineOnMigrate=true migrate
+#    volumes:
+#      - ./src/main/resources/db/migration:/flyway/sql
+#    restart: on-failure
+#    depends_on:
+#      - postgres
+
+    # networks:
+    # leisure-link:
     # external: true

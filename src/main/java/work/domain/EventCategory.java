@@ -27,4 +27,8 @@ public class EventCategory {
 
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
     Set<Event> events = new HashSet<>();
+
+    public EventCategory(String name) {
+        this.name = name;
+    }
 }

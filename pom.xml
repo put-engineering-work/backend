@@ -198,6 +198,12 @@
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
 
+<!--        &lt;!&ndash; flyway &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.flywaydb</groupId>-->
+<!--            <artifactId>flyway-core</artifactId>-->
+<!--            <version>9.17.0</version>-->
+<!--        </dependency>-->
 
     </dependencies>
 
@@ -217,6 +223,11 @@
                     <target>17</target>
                 </configuration>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.flywaydb</groupId>-->
+<!--                <artifactId>flyway-maven-plugin</artifactId>-->
+<!--                <version>8.4.1</version>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
