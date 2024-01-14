@@ -342,6 +342,7 @@ public class EventServiceBean implements EventService {
     }
 
     @Override
+    @Transactional
     public List<EventDto> getAllUserEvents(HttpServletRequest request) {
         var user = authenticationService.getUserByToken(request);
         var events = eventRepository.findAllUserEvents(user.getId());
