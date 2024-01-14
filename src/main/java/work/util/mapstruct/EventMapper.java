@@ -13,6 +13,7 @@ import work.dto.event.get.search.EventDto;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
+    @Mapping(target = "categories", ignore = true)
     @Mapping(target = "location", source = "eventCreateDto", qualifiedByName = "toPoint")
     Event fromCreateDto(EventCreateDto eventCreateDto);
 
