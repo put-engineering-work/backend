@@ -200,6 +200,8 @@ public class EventServiceBean implements EventService {
         var responseHost = new Host(host.getUser().getId(), host.getUser().getUserDetails().getName(), host.getUser().getUserDetails().getLastName());
         response.setHost(responseHost);
         response.setNumberOfMembers(event.getMembers().size());
+        var categories=event.getCategories().stream().map(EventCategory::getName).toList();
+        response.setCategories(categories);
         return response;
     }
 
