@@ -14,6 +14,7 @@ import work.domain.*;
 import work.dto.ResponseObject;
 import work.dto.event.create.CreateCommentDto;
 import work.dto.event.create.EventCreateDto;
+import work.dto.event.get.CategoriesDto;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
@@ -21,10 +22,7 @@ import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.Host;
 import work.dto.event.get.certainevent.MembersForUserDto;
 import work.dto.event.get.search.EventDto;
-import work.repository.CommentRepository;
-import work.repository.EventImageRepository;
-import work.repository.EventRepository;
-import work.repository.MemberRepository;
+import work.repository.*;
 import work.service.authentication.AuthenticationService;
 import work.service.geodata.GeodataService;
 import work.service.util.UtilService;
@@ -51,12 +49,11 @@ public class EventServiceBean implements EventService {
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
     private final MemberMapper memberMapper;
-
     private final EventImageRepository eventImageRepository;
-
     private final UtilService utilService;
+    private final CategoryRepository categoryRepository;
 
-    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService, CommentMapper commentMapper, CommentRepository commentRepository, MemberMapper memberMapper, EventImageRepository eventImageRepository, UtilService utilService) {
+    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService, CommentMapper commentMapper, CommentRepository commentRepository, MemberMapper memberMapper, EventImageRepository eventImageRepository, UtilService utilService, CategoryRepository categoryRepository) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.authenticationService = authenticationService;
@@ -67,12 +64,23 @@ public class EventServiceBean implements EventService {
         this.memberMapper = memberMapper;
         this.eventImageRepository = eventImageRepository;
         this.utilService = utilService;
+        this.categoryRepository = categoryRepository;
     }
 
     @Transactional
     public ResponseObject createEvent(HttpServletRequest request, EventCreateDto eventToCreate) {
         var user = authenticationService.getUserByToken(request);
         var event = eventMapper.fromCreateDto(eventToCreate);
+
+        if (eventToCreate.categories() != null && !eventToCreate.categories().isEmpty()) {
+            for (var categoryName : eventToCreate.categories()) {
+                var category = categoryRepository.findByName(categoryName)
+                        .orElseThrow(
+                                () -> new CustomException("CATEGORY_NOT_FOUND", HttpStatus.BAD_REQUEST));
+                event.getCategories().add(category);
+            }
+        }
+
         if (eventToCreate.photos() != null) {
             List<CompletableFuture<EventImage>> futures = eventToCreate.photos().stream()
                     .map(photo -> CompletableFuture.supplyAsync(() -> {
@@ -348,6 +356,16 @@ public class EventServiceBean implements EventService {
         var events = eventRepository.findAllUserEvents(user.getId());
         var response = events.stream().map(eventMapper::eventToEventDto).toList();
         return getEventDtos(response);
+    }
+
+    @Override
+    public List<String> getAllCategories() {
+        var categories = categoryRepository.findAll();
+        var response = new ArrayList<String>();
+        for (var category : categories) {
+            response.add(category.getName());
+        }
+        return response;
     }
 
     @NotNull

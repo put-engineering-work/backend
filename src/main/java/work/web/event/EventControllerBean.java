@@ -96,4 +96,9 @@ public class EventControllerBean implements EventController {
     public List<EventDto> getAllUserEvents(HttpServletRequest request) {
         return eventService.getAllUserEvents(request);
     }
+
+    @Override
+    public List<String> getAllCategories() {
+        return eventService.getAllCategories();
+    }
 }

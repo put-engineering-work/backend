@@ -40,4 +40,6 @@ public interface EventService {
     List<EventDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO);
 
     List<EventDto> getAllUserEvents(HttpServletRequest request);
+
+    List<String> getAllCategories();
 }

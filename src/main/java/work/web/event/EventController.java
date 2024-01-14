@@ -146,4 +146,11 @@ public interface EventController {
     @GetMapping("/history")
     @PreAuthorize("hasRole('ROLE_USER')")
     List<EventDto> getAllUserEvents(HttpServletRequest request);
+
+    @Operation(summary = "Get all categories")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK")
+    })
+    @GetMapping("/all-categories")
+    List<String> getAllCategories();
 }

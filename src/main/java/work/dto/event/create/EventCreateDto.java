@@ -27,6 +27,9 @@ public record EventCreateDto(
         @Schema(description = "Geographical longitude of the event location", example = "21.0122")
         Double longitude,
 
+        @Schema(description = "list of categories")
+        List<String> categories,
+
         @Schema(description = "Photo")
         List<MultipartFile> photos
 ) {
