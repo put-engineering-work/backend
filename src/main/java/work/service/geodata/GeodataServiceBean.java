@@ -58,8 +58,8 @@ public class GeodataServiceBean implements GeodataService {
                                     ObjectNode newPrediction = objectMapper.createObjectNode();
                                     newPrediction.put("description", description);
                                     newPrediction.put("place_id", placeId);
-                                    newPrediction.put("longitude", longitude);
                                     newPrediction.put("latitude", latitude);
+                                    newPrediction.put("longitude", longitude);
 
                                     return newPrediction;
                                 });
