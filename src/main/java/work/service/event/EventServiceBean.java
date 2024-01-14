@@ -72,14 +72,7 @@ public class EventServiceBean implements EventService {
         var user = authenticationService.getUserByToken(request);
         var event = eventMapper.fromCreateDto(eventToCreate);
 
-        if (eventToCreate.categories() != null && !eventToCreate.categories().isEmpty()) {
-            for (var categoryName : eventToCreate.categories()) {
-                var category = categoryRepository.findByName(categoryName)
-                        .orElseThrow(
-                                () -> new CustomException("CATEGORY_NOT_FOUND", HttpStatus.BAD_REQUEST));
-                event.getCategories().add(category);
-            }
-        }
+
 
         if (eventToCreate.photos() != null) {
             List<CompletableFuture<EventImage>> futures = eventToCreate.photos().stream()
@@ -102,6 +95,8 @@ public class EventServiceBean implements EventService {
         }
 
 
+
+
         if (event.getAddress() == null || event.getAddress().isEmpty()) {
             geodataService.getAddressFromCoordinates(event.getLocation().getY(), event.getLocation().getX())
                     .subscribe(addressJson -> {
@@ -112,7 +107,15 @@ public class EventServiceBean implements EventService {
         } else {
             saveEventAndMember(event, user);
         }
-
+        if (eventToCreate.categories() != null && !eventToCreate.categories().isEmpty()) {
+            for (var categoryName : eventToCreate.categories()) {
+                var category = categoryRepository.findByName(categoryName)
+                        .orElseThrow(
+                                () -> new CustomException("CATEGORY_NOT_FOUND", HttpStatus.BAD_REQUEST));
+                event.getCategories().add(category);
+            }
+        }
+        eventRepository.saveAndFlush(event);
         return new ResponseObject(HttpStatus.CREATED, "CREATED", null);
     }
 
