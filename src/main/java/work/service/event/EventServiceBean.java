@@ -72,8 +72,6 @@ public class EventServiceBean implements EventService {
         var user = authenticationService.getUserByToken(request);
         var event = eventMapper.fromCreateDto(eventToCreate);
 
-
-
         if (eventToCreate.photos() != null) {
             List<CompletableFuture<EventImage>> futures = eventToCreate.photos().stream()
                     .map(photo -> CompletableFuture.supplyAsync(() -> {
@@ -94,9 +92,6 @@ public class EventServiceBean implements EventService {
             event.setEventImages(eventImages);
         }
 
-
-
-
         if (event.getAddress() == null || event.getAddress().isEmpty()) {
             geodataService.getAddressFromCoordinates(event.getLocation().getY(), event.getLocation().getX())
                     .subscribe(addressJson -> {
@@ -116,6 +111,7 @@ public class EventServiceBean implements EventService {
             }
         }
         eventRepository.saveAndFlush(event);
+
         return new ResponseObject(HttpStatus.CREATED, "CREATED", null);
     }
 
@@ -176,9 +172,23 @@ public class EventServiceBean implements EventService {
             events = events.stream().filter(e -> e.getName().contains(searchEventDTO.eventName())).toList();
         }
 
-        return events.stream()
+        var response = events.stream()
                 .map(eventMapper::eventToEventsInRadiusDto)
-                .collect(Collectors.toList());
+                .toList();
+        List<Event> finalEvents = events;
+        response.forEach(r -> r.setNumberOfMembers(
+                finalEvents.stream().filter(e -> e.getId().equals(r.getId())).toList().get(0).getMembers().size()
+        ));
+
+        response.forEach(r -> {
+            List<CompletableFuture<Void>> futures = r.getEventImages().stream()
+                    .map(p -> CompletableFuture.runAsync(() -> p.setImage(utilService.decompressImage(p.getImage()))))
+                    .toList();
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        });
+
+        return response;
     }
 
     @Override
@@ -200,7 +210,7 @@ public class EventServiceBean implements EventService {
         var responseHost = new Host(host.getUser().getId(), host.getUser().getUserDetails().getName(), host.getUser().getUserDetails().getLastName());
         response.setHost(responseHost);
         response.setNumberOfMembers(event.getMembers().size());
-        var categories=event.getCategories().stream().map(EventCategory::getName).toList();
+        var categories = event.getCategories().stream().map(EventCategory::getName).toList();
         response.setCategories(categories);
         return response;
     }
