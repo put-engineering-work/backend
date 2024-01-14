@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import work.dto.event.get.certainevent.Host;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -40,4 +41,10 @@ public class EventDto {
     private double longitude;
 
     private List<EventImagesDto> eventImages;
+
+    List<String> categories;
+
+    Host host;
+
+    Integer numberOfMembers;
 }

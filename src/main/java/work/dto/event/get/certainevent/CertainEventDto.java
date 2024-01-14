@@ -41,6 +41,5 @@ public class CertainEventDto {
 
     List<String> categories;
 
-
     Host host;
 }

@@ -176,9 +176,6 @@ public class EventServiceBean implements EventService {
                 .map(eventMapper::eventToEventsInRadiusDto)
                 .toList();
         List<Event> finalEvents = events;
-        response.forEach(r -> r.setNumberOfMembers(
-                finalEvents.stream().filter(e -> e.getId().equals(r.getId())).toList().get(0).getMembers().size()
-        ));
 
         response.forEach(r -> {
             List<CompletableFuture<Void>> futures = r.getEventImages().stream()
@@ -186,6 +183,18 @@ public class EventServiceBean implements EventService {
                     .toList();
 
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        });
+
+        response.forEach(r -> {
+            for (var event : finalEvents) {
+                if(event.getId().equals(r.getId())){
+                    r.setNumberOfMembers(event.getMembers().size());
+                    var categories=event.getCategories().stream().map(EventCategory::getName).toList();
+                    r.setCategories(categories);
+                    var host=event.getMembers().stream().filter(f->f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
+                    r.setHost(new Host(host.getId(), host.getUserDetails().getName(), host.getUserDetails().getLastName()));
+                }
+            }
         });
 
         return response;
@@ -370,6 +379,17 @@ public class EventServiceBean implements EventService {
         var user = authenticationService.getUserByToken(request);
         var events = eventRepository.findAllUserEvents(user.getId());
         var response = events.stream().map(eventMapper::eventToEventDto).toList();
+        response.forEach(r -> {
+            for (var event : events) {
+                if(event.getId().equals(r.getId())){
+                    r.setNumberOfMembers(event.getMembers().size());
+                    var categories=event.getCategories().stream().map(EventCategory::getName).toList();
+                    r.setCategories(categories);
+                    var host=event.getMembers().stream().filter(f->f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
+                    r.setHost(new Host(host.getId(), host.getUserDetails().getName(), host.getUserDetails().getLastName()));
+                }
+            }
+        });
         return getEventDtos(response);
     }
 

@@ -10,6 +10,8 @@ import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.search.EventDto;
 
+import java.util.List;
+
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
@@ -19,6 +21,7 @@ public interface EventMapper {
 
     @Mapping(target = "longitude", expression = "java(event.getLocation().getX())")
     @Mapping(target = "latitude", expression = "java(event.getLocation().getY())")
+    @Mapping(target = "categories", ignore = true)
     EventsInRadiusDto eventToEventsInRadiusDto(Event event);
 
     @Named("toPoint")
@@ -37,5 +40,8 @@ public interface EventMapper {
 
     @Mapping(target = "longitude", expression = "java(event.getLocation().getX())")
     @Mapping(target = "latitude", expression = "java(event.getLocation().getY())")
+    @Mapping(target = "categories", ignore = true)
     EventDto eventToEventDto(Event event);
+
+
 }
