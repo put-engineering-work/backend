@@ -32,6 +32,7 @@ public interface EventMapper {
 
     @Mapping(target = "longitude", expression = "java(event.getLocation().getX())")
     @Mapping(target = "latitude", expression = "java(event.getLocation().getY())")
+    @Mapping(target = "categories", ignore = true)
     CertainEventDto toCertainEventDto(Event event);
 
     @Mapping(target = "longitude", expression = "java(event.getLocation().getX())")
