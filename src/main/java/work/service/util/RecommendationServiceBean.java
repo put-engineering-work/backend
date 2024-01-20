@@ -8,6 +8,7 @@ import work.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class RecommendationServiceBean implements RecommendationService {

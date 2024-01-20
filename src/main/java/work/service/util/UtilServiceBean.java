@@ -49,9 +49,10 @@ public class UtilServiceBean implements UtilService {
     }
 
     public byte[] decompressImage(byte[] compressedImageData) {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(compressedImageData);
+        ByteArrayInputStream inputStream = null;
         byte[] imageBytes = null;
         try {
+            inputStream = new ByteArrayInputStream(compressedImageData);
             ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream);
 
             Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
@@ -72,7 +73,7 @@ public class UtilServiceBean implements UtilService {
             inputStream.close();
             outputStream.close();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println(e);
             return null;
         }
