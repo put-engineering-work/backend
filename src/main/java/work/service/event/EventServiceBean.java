@@ -136,10 +136,11 @@ public class EventServiceBean implements EventService {
         var user = authenticationService.getUserByToken(request);
         var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
         var comment = commentMapper.fromCreateCommentDto(createCommentDto);
+        comment = commentRepository.saveAndFlush(comment);
         comment.setEvent(event);
         comment.setUser(user);
         comment.setCommentDate(ZonedDateTime.now());
-        commentRepository.save(comment);
+        commentRepository.saveAndFlush(comment);
         return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", authenticationService.extractRequestToken(request));
 //        } catch (Exception e) {
 //            var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
@@ -187,11 +188,11 @@ public class EventServiceBean implements EventService {
 
         response.forEach(r -> {
             for (var event : finalEvents) {
-                if(event.getId().equals(r.getId())){
+                if (event.getId().equals(r.getId())) {
                     r.setNumberOfMembers(event.getMembers().size());
-                    var categories=event.getCategories().stream().map(EventCategory::getName).toList();
+                    var categories = event.getCategories().stream().map(EventCategory::getName).toList();
                     r.setCategories(categories);
-                    var host=event.getMembers().stream().filter(f->f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
+                    var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
                     r.setHost(new Host(host.getId(), host.getUserDetails().getName(), host.getUserDetails().getLastName()));
                 }
             }
@@ -381,11 +382,11 @@ public class EventServiceBean implements EventService {
         var response = events.stream().map(eventMapper::eventToEventDto).toList();
         response.forEach(r -> {
             for (var event : events) {
-                if(event.getId().equals(r.getId())){
+                if (event.getId().equals(r.getId())) {
                     r.setNumberOfMembers(event.getMembers().size());
-                    var categories=event.getCategories().stream().map(EventCategory::getName).toList();
+                    var categories = event.getCategories().stream().map(EventCategory::getName).toList();
                     r.setCategories(categories);
-                    var host=event.getMembers().stream().filter(f->f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
+                    var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
                     r.setHost(new Host(host.getId(), host.getUserDetails().getName(), host.getUserDetails().getLastName()));
                 }
             }
