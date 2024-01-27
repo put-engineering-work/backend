@@ -197,8 +197,22 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-<!--        &lt;!&ndash; flyway &ndash;&gt;-->
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.12.4</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!--        &lt;!&ndash; flyway &ndash;&gt;-->
 <!--        <dependency>-->
 <!--            <groupId>org.flywaydb</groupId>-->
 <!--            <artifactId>flyway-core</artifactId>-->
