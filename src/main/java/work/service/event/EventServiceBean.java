@@ -134,7 +134,7 @@ public class EventServiceBean implements EventService {
     public ResponseObject createEventComment(HttpServletRequest request, CreateCommentDto createCommentDto, UUID eventId) {
 //        try {
         var user = authenticationService.getUserByToken(request);
-        var event = eventRepository.findEventByIdAndUserId(user.getId(), eventId).orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
+        var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
         var comment = commentMapper.fromCreateCommentDto(createCommentDto);
         comment.setEvent(event);
         comment.setUser(user);

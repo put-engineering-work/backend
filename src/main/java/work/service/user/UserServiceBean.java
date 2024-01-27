@@ -198,7 +198,9 @@ public class UserServiceBean implements UserService {
         var userDetails = userDetailsRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
         var response=userMapper.getUserDetailsData(userDetails);
-        response.setPhoto(utilService.decompressImage(userDetails.getPhoto()));
+        if(userDetails.getPhoto()!=null) {
+            response.setPhoto(utilService.decompressImage(userDetails.getPhoto()));
+        }
         return response;
     }
 
