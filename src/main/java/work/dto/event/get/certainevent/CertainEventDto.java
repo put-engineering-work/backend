@@ -7,6 +7,7 @@ import lombok.Setter;
 import work.domain.EventCategory;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -36,13 +37,9 @@ public class CertainEventDto {
 
     Integer numberOfMembers;
 
-//    Set<MembersForUserDto> members;
-
     Set<EventImageDto> eventImages;
 
-    Set<EventCategory> categories;
-
-//    Set<CommentDto> comments;
+    List<String> categories;
 
     Host host;
 }

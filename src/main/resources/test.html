@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+<h2>WebSocket Test</h2>
+<button id="connect">Connect</button>
+<button id="disconnect" disabled>Disconnect</button>
+<button id="send" disabled>Send Message</button>
+<div id="messages"></div>
+
+<script>
+    var ws;
+
+    document.getElementById('connect').onclick = function() {
+        ws = new WebSocket('ws://localhost:8085/chat?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJvbGVzaWsuYW5kcmVpQGdtYWlsLmNvbSIsImF1dGgiOlt7ImF1dGhvcml0eSI6IlJPTEVfVVNFUiJ9XSwiaWF0IjoxNzA0MDM4MjkxLCJleHAiOjE3MDQ5MzgyOTF9.Bmiocx4iQ9bO820LN1ANurCzUu2C7K0-wfPj7qudGpw');
+        ws.headers=
+        ws.onopen = function() {
+            console.log('Connected');
+            document.getElementById('send').disabled = false;
+            document.getElementById('disconnect').disabled = false;
+        };
+
+        ws.onmessage = function(event) {
+            var messages = document.getElementById('messages');
+            var message = document.createElement('div');
+            message.textContent = 'Received: ' + event.data;
+            messages.appendChild(message);
+        };
+
+        ws.onclose = function() {
+            console.log('Disconnected');
+            document.getElementById('send').disabled = true;
+            document.getElementById('disconnect').disabled = true;
+        };
+    };
+
+    document.getElementById('disconnect').onclick = function() {
+        ws.close();
+    };
+
+    document.getElementById('send').onclick = function() {
+        ws.send('Hello Server!');
+    };
+</script>
+</body>
+</html>

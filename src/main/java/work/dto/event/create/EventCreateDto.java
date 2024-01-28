@@ -1,12 +1,10 @@
 package work.dto.event.create;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 
-import java.time.ZonedDateTime;
-
-//@ApiModel(description = "Data required to create a new event")
 public record EventCreateDto(
         @Schema(description = "Name of the event", example = "Rock Concert")
         String name,
@@ -18,18 +16,22 @@ public record EventCreateDto(
         String description,
 
         @Schema(description = "Start date and time of the event", example = "2023-12-01T20:00:00+01:00")
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-        ZonedDateTime startDate,
+        String startDate,
 
         @Schema(description = "End date and time of the event", example = "2023-12-01T23:00:00+01:00")
-        ZonedDateTime endDate,
+        String endDate,
 
         @Schema(description = "Geographical latitude of the event location", example = "52.2297")
         Double latitude,
 
         @Schema(description = "Geographical longitude of the event location", example = "21.0122")
-        Double longitude
+        Double longitude,
 
+        @Schema(description = "list of categories")
+        List<String> categories,
+
+        @Schema(description = "Photo")
+        List<MultipartFile> photos
 ) {
 }
 

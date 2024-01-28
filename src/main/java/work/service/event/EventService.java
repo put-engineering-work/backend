@@ -8,6 +8,7 @@ import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
 import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.MembersForUserDto;
+import work.dto.event.get.search.EventDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -32,9 +33,13 @@ public interface EventService {
 
     ResponseObject removeCurrentUserFromEvent(HttpServletRequest request, UUID eventId);
 
-    List<EventsInRadiusDto> getLastNEvents(Integer number);
+    List<EventDto> getLastNEvents(Integer number);
 
     Integer getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO);
 
-    List<EventsInRadiusDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO);
+    List<EventDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO);
+
+    List<EventDto> getAllUserEvents(HttpServletRequest request);
+
+    List<String> getAllCategories();
 }

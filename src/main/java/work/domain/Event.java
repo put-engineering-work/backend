@@ -42,7 +42,7 @@ public class Event {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "event")
     private Set<Member> members = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "event")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "event", cascade = CascadeType.ALL)
     private Set<EventImage> eventImages = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

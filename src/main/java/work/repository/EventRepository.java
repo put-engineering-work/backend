@@ -28,7 +28,7 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     @Query(value = "SELECT e.* FROM events e " +
             "WHERE st_distancesphere(e.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) <= :radius " +
             "AND e.start_date >=:startDate " +
-            "AND e.start_date <= CURRENT_DATE + INTERVAL '1 DAY' - INTERVAL '1 SECOND' " +
+//            "AND e.start_date <= CURRENT_DATE + INTERVAL '1 DAY' - INTERVAL '1 SECOND' " +
             "order by e.start_date desc",
             nativeQuery = true)
     List<Event> findEventsWithinRadius(
@@ -89,4 +89,6 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     @Query("SELECT e FROM Event e JOIN e.categories c WHERE c.name IN :categories AND e NOT IN (SELECT m.event FROM Member m WHERE m.user.id = :userId)")
     List<Event> findRecommendedEvents(@Param("categories") List<String> categories, @Param("userId") UUID userId);
 
+    @Query(value = "select * from events e join members m on e.id = m.event_id where user_id=:userId and m.status!='STATUS_INACTIVE' and end_date>=CURRENT_DATE", nativeQuery = true)
+    List<Event> findAllUserEvents(@Param("userId") UUID userId);
 }

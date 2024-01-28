@@ -5,8 +5,6 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -30,9 +28,11 @@ public class Message {
 
     private String message;
 
-    private ZonedDateTime createdDate;
+    private ZonedDateTime createdDate = ZonedDateTime.now();
 
-    @ManyToMany(mappedBy = "messages", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Member> members = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Member member;
+
+    private UUID userId;
 
 }

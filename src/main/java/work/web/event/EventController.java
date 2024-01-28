@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import work.dto.ResponseObject;
 import work.dto.event.create.CreateCommentDto;
@@ -14,13 +16,13 @@ import work.dto.event.get.SearchEventDTO;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.MembersForUserDto;
+import work.dto.event.get.search.EventDto;
 
 import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.UUID;
 
-//@Api(value = "Event", tags = "Event")
 @Tag(name = "Event", description = "Event API")
 public interface EventController {
     @Operation(summary = "Create a new event")
@@ -29,8 +31,8 @@ public interface EventController {
             @ApiResponse(responseCode = "400", description = "Invalid event data provided")
     })
     @SecurityRequirement(name = "Bearer Authentication")
-    @PostMapping("/create")
-    ResponseObject createEvent(HttpServletRequest request, @RequestBody EventCreateDto eventDto);
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseObject createEvent(HttpServletRequest request, @ModelAttribute EventCreateDto eventDto);
 
     @Operation(summary = "Create comment to event")
     @ApiResponses(
@@ -119,7 +121,7 @@ public interface EventController {
     })
     @GetMapping("/last/{number}")
     @PermitAll
-    List<EventsInRadiusDto> getLastNEvents(@PathVariable("number") Integer number);
+    List<EventDto> getLastNEvents(@PathVariable("number") Integer number);
 
 
     @Operation(summary = "Get number of pages")
@@ -135,5 +137,20 @@ public interface EventController {
             @ApiResponse(responseCode = "200", description = "OK")
     })
     @PostMapping("/pageable/{pageSize}/{pageNumber}")
-    List<EventsInRadiusDto> getEventsWithPagination(@PathVariable("pageSize") Integer pageSize, @PathVariable("pageNumber") Integer pageNumber, SearchEventDTO searchEventDTO);
+    List<EventDto> getEventsWithPagination(@PathVariable("pageSize") Integer pageSize, @PathVariable("pageNumber") Integer pageNumber, SearchEventDTO searchEventDTO);
+
+    @Operation(summary = "Get user events")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK")
+    })
+    @GetMapping("/history")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    List<EventDto> getAllUserEvents(HttpServletRequest request);
+
+    @Operation(summary = "Get all categories")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK")
+    })
+    @GetMapping("/all-categories")
+    List<String> getAllCategories();
 }

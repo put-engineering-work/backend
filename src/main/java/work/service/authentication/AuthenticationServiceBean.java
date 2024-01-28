@@ -1,5 +1,6 @@
 package work.service.authentication;
 
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 import work.domain.User;
 import work.repository.UserRepository;
@@ -30,10 +31,39 @@ public class AuthenticationServiceBean implements AuthenticationService {
     }
 
     @Override
+    public User getUserByToken(String token) {
+        var user = userRepository.findByEmail(jwtTokenProvider.getUsername(token));
+        if (user.isEmpty()) {
+            throw new AuthenticationException();
+        } else {
+            return user.get();
+        }
+    }
+
+    @Override
+    public User getUserByToken(ServerHttpRequest request) {
+        var token = extractToken(request);
+        var user = userRepository.findByEmail(jwtTokenProvider.getUsername(token));
+        if (user.isEmpty()) {
+            throw new AuthenticationException();
+        } else {
+            return user.get();
+        }
+    }
+
+    @Override
     public String extractRequestToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             return header.replace("Bearer ", "");
+        }
+        return null;
+    }
+
+    private String extractToken(ServerHttpRequest request) {
+        String tokenParam = request.getURI().getQuery();
+        if (tokenParam != null && tokenParam.startsWith("token=")) {
+            return tokenParam.substring(6);
         }
         return null;
     }

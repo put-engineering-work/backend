@@ -25,11 +25,11 @@
 
     <dependencies>
 
-<!--        <dependency>-->
-<!--            <groupId>org.njgzr</groupId>-->
-<!--            <artifactId>commons-util</artifactId>-->
-<!--            <version>1.0.0</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.njgzr</groupId>-->
+        <!--            <artifactId>commons-util</artifactId>-->
+        <!--            <version>1.0.0</version>-->
+        <!--        </dependency>-->
 
 
         <!-- https://mvnrepository.com/artifact/com.sun.mail/javax.mail -->
@@ -38,7 +38,6 @@
             <artifactId>javax.mail</artifactId>
             <version>1.6.2</version>
         </dependency>
-
 
 
         <dependency>
@@ -99,34 +98,23 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.20</version>
             <scope>provided</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>io.springfox</groupId>-->
-<!--            <artifactId>springfox-boot-starter</artifactId>-->
-<!--            <version>3.0.0</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>io.springfox</groupId>-->
+        <!--            <artifactId>springfox-boot-starter</artifactId>-->
+        <!--            <version>3.0.0</version>-->
+        <!--        </dependency>-->
 
-<!--        <dependency>-->
-<!--            <groupId>io.springfox</groupId>-->
-<!--            <artifactId>springfox-swagger-ui</artifactId>-->
-<!--            <version>3.0.0</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>io.springfox</groupId>-->
+        <!--            <artifactId>springfox-swagger-ui</artifactId>-->
+        <!--            <version>3.0.0</version>-->
+        <!--        </dependency>-->
 
         <dependency>
             <!-- JSON Web Token Support -->
@@ -164,10 +152,10 @@
 
 
         <!--        <dependency>-->
-<!--            <groupId>commons-validator</groupId>-->
-<!--            <artifactId>commons-validator</artifactId>-->
-<!--            <version>1.7</version>-->
-<!--        </dependency>-->
+        <!--            <groupId>commons-validator</groupId>-->
+        <!--            <artifactId>commons-validator</artifactId>-->
+        <!--            <version>1.7</version>-->
+        <!--        </dependency>-->
 
         <!-- OpenCV -->
         <dependency>
@@ -204,7 +192,31 @@
             <artifactId>commons-csv</artifactId>
             <version>1.9.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
 
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.12.4</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!--        &lt;!&ndash; flyway &ndash;&gt;-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.flywaydb</groupId>-->
+        <!--            <artifactId>flyway-core</artifactId>-->
+        <!--            <version>9.17.0</version>-->
+        <!--        </dependency>-->
 
     </dependencies>
 
@@ -224,6 +236,11 @@
                     <target>17</target>
                 </configuration>
             </plugin>
+            <!--            <plugin>-->
+            <!--                <groupId>org.flywaydb</groupId>-->
+            <!--                <artifactId>flyway-maven-plugin</artifactId>-->
+            <!--                <version>8.4.1</version>-->
+            <!--            </plugin>-->
         </plugins>
     </build>
 

@@ -15,6 +15,7 @@ import work.dto.event.get.SearchEventDTO;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.MembersForUserDto;
+import work.dto.event.get.search.EventDto;
 import work.service.event.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -77,7 +78,7 @@ public class EventControllerBean implements EventController {
     }
 
     @Override
-    public List<EventsInRadiusDto> getLastNEvents(Integer number) {
+    public List<EventDto> getLastNEvents(Integer number) {
         return eventService.getLastNEvents(number);
     }
 
@@ -87,7 +88,17 @@ public class EventControllerBean implements EventController {
     }
 
     @Override
-    public List<EventsInRadiusDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO) {
+    public List<EventDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO) {
         return eventService.getEventsWithPagination(pageSize, pageNumber, searchEventDTO);
+    }
+
+    @Override
+    public List<EventDto> getAllUserEvents(HttpServletRequest request) {
+        return eventService.getAllUserEvents(request);
+    }
+
+    @Override
+    public List<String> getAllCategories() {
+        return eventService.getAllCategories();
     }
 }

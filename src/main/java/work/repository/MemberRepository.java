@@ -16,4 +16,7 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
 
     @Query(value = "select * from public.members m join events e on e.id = m.event_id where e.id=:eventId and m.user_id=:userId",nativeQuery = true)
     Optional<Member> isMemberExistInEvent(@Param("userId") UUID userId, @Param("eventId") UUID eventId);
+
+    @Query(value = "select * from members where user_id=:userId and event_id=:eventId",nativeQuery = true)
+    Optional<Member> findMemberByUserIdAndEventId(@Param("userId") UUID userId, @Param("eventId") UUID eventId);
 }

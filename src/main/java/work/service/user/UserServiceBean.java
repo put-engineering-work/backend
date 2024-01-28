@@ -4,6 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 import work.domain.AppUserRole;
 import work.domain.User;
 import work.dto.ResponseObject;
+import work.dto.user.GetUserIdDTO;
 import work.dto.user.UserToken;
 import work.dto.user.userdetails.GetUserDetailsDTO;
 import work.dto.user.userdetails.UpdateUserDetailsDTO;
@@ -12,7 +13,7 @@ import work.repository.UserRepository;
 import work.service.authentication.AuthenticationService;
 import work.service.email.EmailDetails;
 import work.service.email.EmailService;
-import work.service.imageoperation.ImageOperationService;
+import work.service.util.UtilService;
 import work.util.exception.CustomException;
 import work.util.exception.UserNotFoundException;
 import work.util.mapstruct.UserMapper;
@@ -26,6 +27,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.Console;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -43,7 +46,8 @@ public class UserServiceBean implements UserService {
     private final UserDetailsRepository userDetailsRepository;
     private final UserMapper userMapper;
     private final EmailService emailService;
-    private final ImageOperationService imageOperationService;
+    private final UtilService utilService;
+    private final AuthenticationService authenticationService;
 
 
     @Override
@@ -193,7 +197,11 @@ public class UserServiceBean implements UserService {
     public GetUserDetailsDTO getUserDetails(UUID userId) {
         var userDetails = userDetailsRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
-        return userMapper.getUserDetailsData(userDetails);
+        var response=userMapper.getUserDetailsData(userDetails);
+        if(userDetails.getPhoto()!=null) {
+            response.setPhoto(utilService.decompressImage(userDetails.getPhoto()));
+        }
+        return response;
     }
 
     @Override
@@ -210,16 +218,20 @@ public class UserServiceBean implements UserService {
         return new ResponseObject(HttpStatus.ACCEPTED, "DATA_SUCCESSFULLY_UPDATED", null);
     }
 
+    @Transactional
     public ResponseObject updateUserImage(UUID userId, MultipartFile photo){
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("USER_NOT_FOUND"));
         if (user.getUserDetails()!=null){
-            user.getUserDetails().setPhoto(imageOperationService.compressImage(photo, 0.5f));
+            user.getUserDetails().setPhoto(utilService.compressImage(photo, 0.5f));
             userRepository.save(user);
         }
         return new ResponseObject(HttpStatus.OK, "DATA_SUCCESSFULLY_UPDATED", null);
+    }
 
-
+    @Override
+    public GetUserIdDTO getMyId(HttpServletRequest request) {
+        return new GetUserIdDTO(authenticationService.getUserByToken(request).getId());
     }
 
     public String refresh(String email) {
