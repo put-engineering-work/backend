@@ -68,7 +68,6 @@ public class JwtTokenProvider {
     }
 
     public String createToken(String email, List<AppUserRole> appUserRoles) {
-        //appUserRoles.add(AppUserRole.ROLE_CLIENT);
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("auth", appUserRoles.stream().map(
                         s ->
@@ -79,11 +78,11 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
-        return Jwts.builder()//
-                .setClaims(claims)//
-                .setIssuedAt(now)//
-                .setExpiration(validity)//
-                .signWith(SignatureAlgorithm.HS256, secretKey)//
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
