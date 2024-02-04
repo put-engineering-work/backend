@@ -76,7 +76,7 @@ public class EventServiceBean implements EventService {
             List<CompletableFuture<EventImage>> futures = eventToCreate.photos().stream()
                     .map(photo -> CompletableFuture.supplyAsync(() -> {
                         try {
-                            byte[] compressedImage = utilService.compressImage(photo, 0.75f); // Сжатие изображения
+                            byte[] compressedImage = utilService.compressImage(photo, 0.75f);
                             return EventImage.builder()
                                     .image(compressedImage)
                                     .event(event)
