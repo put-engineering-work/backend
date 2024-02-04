@@ -136,11 +136,10 @@ public class EventServiceBean implements EventService {
         var user = authenticationService.getUserByToken(request);
         var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
         var comment = commentMapper.fromCreateCommentDto(createCommentDto);
-        comment = commentRepository.saveAndFlush(comment);
         comment.setEvent(event);
         comment.setUser(user);
         comment.setCommentDate(ZonedDateTime.now());
-        commentRepository.saveAndFlush(comment);
+        comment = commentRepository.saveAndFlush(comment);
         return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", authenticationService.extractRequestToken(request));
 //        } catch (Exception e) {
 //            var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
@@ -244,9 +243,8 @@ public class EventServiceBean implements EventService {
     @Override
     @Transactional
     public List<CommentDto> getCommentsForCertainEvent(UUID eventId) {
-        var event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
-        return commentMapper.toCommentDtoList(event.getComments().stream().toList());
+        var comments=commentRepository.findCommentsByEventId(eventId);
+        return commentMapper.toCommentDtoList(comments);
     }
 
     @Override
