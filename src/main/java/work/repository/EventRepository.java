@@ -46,15 +46,13 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     @Query(value = "select e.* from events e where e.end_date>=:currentDate order by e.start_date DESC LIMIT :number", nativeQuery = true)
     List<Event> findLastNEvents(@Param("number") Integer number, @Param("currentDate") ZonedDateTime currentDate);
 
-    @Query(value = "SELECT e.* FROM events e " +
+    @Query(value = "SELECT * FROM events e " +
             "WHERE st_distancesphere(e.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) <= :radius " +
             "AND e.start_date >= :startDate " +
-            "AND e.start_date <= CURRENT_DATE + INTERVAL '1 DAY' - INTERVAL '1 SECOND' " +
             "order by e.start_date desc",
             countQuery = "SELECT count(*) FROM events e " +
                     "WHERE st_distancesphere(e.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) <= :radius " +
-                    "AND e.start_date >= :startDate " +
-                    "AND e.start_date <= CURRENT_DATE + INTERVAL '1 DAY' - INTERVAL '1 SECOND'",
+                    "AND e.start_date >= :startDate ",
             nativeQuery = true)
     Page<Event> findEventsWithinRadiusWithPagination(
             @Param("latitude") double latitude,
@@ -63,7 +61,7 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             @Param("startDate") ZonedDateTime startDate,
             Pageable pageable);
 
-    @Query(value = "SELECT e.* FROM events e " +
+    @Query(value = "SELECT * FROM events e " +
             "WHERE st_distancesphere(e.location, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) <= :radius " +
             "and e.end_date >= CURRENT_DATE " +
             "order by e.start_date desc",

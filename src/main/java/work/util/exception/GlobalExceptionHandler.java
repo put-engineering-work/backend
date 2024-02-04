@@ -18,7 +18,11 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> globalExceptionHandler(Exception ex) {
-        ResponseObject errorDetails = new ResponseObject(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+        String errorMessage = ex.getMessage();
+        if (ex.getCause() != null) {
+            errorMessage = ex.getCause().getMessage();
+        }
+        ResponseObject errorDetails = new ResponseObject(HttpStatus.BAD_REQUEST, errorMessage, null);
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
@@ -56,5 +60,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpServletRequest request) {
         ResponseObject errorDetails = new ResponseObject(HttpStatus.NOT_FOUND, "ENDPOINT_NOT_FOUND", request.getRequestURI());
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> handleIllegalStateException(IllegalStateException exception, HttpServletRequest request){
+        ResponseObject errorDetails = new ResponseObject(HttpStatus.BAD_REQUEST, "BAD_FORMAT", request.getRequestURI());
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 }

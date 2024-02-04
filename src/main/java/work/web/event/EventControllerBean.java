@@ -16,6 +16,7 @@ import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.MembersForUserDto;
 import work.dto.event.get.search.EventDto;
+import work.dto.event.get.search.NumberOfPages;
 import work.service.event.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -83,7 +84,7 @@ public class EventControllerBean implements EventController {
     }
 
     @Override
-    public Integer getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO) {
+    public NumberOfPages getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO) {
         return eventService.getNumberOfPages(numberOfEventOnPage, searchEventDTO);
     }
 

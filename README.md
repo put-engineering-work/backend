@@ -5,11 +5,7 @@ mvn clean install
 ```
 To run the project using Docker Compose and build the images:
 ```bash
-docker-compose up --build
-```
-Без билда
-```bash
 docker-compose up
 ```
-Линк на swagger
+Swagger link
 http://localhost:8085/swagger-ui/index.html#/User

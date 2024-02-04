@@ -19,6 +19,7 @@ public class CustomException extends RuntimeException {
         this.httpStatus = httpStatus;
     }
 
+
     @Override
     public String getMessage() {
         return message;

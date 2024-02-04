@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +26,8 @@ public class MethodLoggerAspect {
 
     @Value("${service.methods.logger.enabled:true}")
     private boolean serviceMethodsLoggerEnabled;
+    @Value("${repository.methods.logger.enabled}")
+    private boolean repositoryMethodsLoggerEnabled;
 
     @Around("@within(restController)")
     public Object logRestControllerMethod(ProceedingJoinPoint joinPoint, RestController restController) throws Throwable {
@@ -34,6 +37,11 @@ public class MethodLoggerAspect {
     @Around("@within(service)")
     public Object logServiceMethod(ProceedingJoinPoint joinPoint, Service service) throws Throwable {
         return loggerFormatter(joinPoint, serviceMethodsLoggerEnabled);
+    }
+
+    @Around("@within(repository)")
+    public Object logRepositoryMethod(ProceedingJoinPoint joinPoint, Repository repository) throws Throwable {
+        return loggerFormatter(joinPoint, repositoryMethodsLoggerEnabled);
     }
 
     private Object loggerFormatter(ProceedingJoinPoint joinPoint, boolean serviceMethodsLoggerEnabled) throws Throwable {

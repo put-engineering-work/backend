@@ -44,7 +44,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 ,
                 "/chat**",
                 "/geodata/**",
-                "/events/all-categories"
+                "/events/all-categories",
+                "/events/number/**"
         );
     }
 

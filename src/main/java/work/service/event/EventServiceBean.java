@@ -2,6 +2,7 @@ package work.service.event;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,7 +15,6 @@ import work.domain.*;
 import work.dto.ResponseObject;
 import work.dto.event.create.CreateCommentDto;
 import work.dto.event.create.EventCreateDto;
-import work.dto.event.get.CategoriesDto;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
@@ -22,6 +22,7 @@ import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.Host;
 import work.dto.event.get.certainevent.MembersForUserDto;
 import work.dto.event.get.search.EventDto;
+import work.dto.event.get.search.NumberOfPages;
 import work.repository.*;
 import work.service.authentication.AuthenticationService;
 import work.service.geodata.GeodataService;
@@ -40,6 +41,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class EventServiceBean implements EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
@@ -52,8 +54,9 @@ public class EventServiceBean implements EventService {
     private final EventImageRepository eventImageRepository;
     private final UtilService utilService;
     private final CategoryRepository categoryRepository;
+    private final UserDetailsRepository userDetailsRepository;
 
-    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService, CommentMapper commentMapper, CommentRepository commentRepository, MemberMapper memberMapper, EventImageRepository eventImageRepository, UtilService utilService, CategoryRepository categoryRepository) {
+    public EventServiceBean(EventRepository eventRepository, EventMapper eventMapper, AuthenticationService authenticationService, MemberRepository memberRepository, GeodataService geodataService, CommentMapper commentMapper, CommentRepository commentRepository, MemberMapper memberMapper, EventImageRepository eventImageRepository, UtilService utilService, CategoryRepository categoryRepository, UserDetailsRepository userDetailsRepository) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.authenticationService = authenticationService;
@@ -65,6 +68,7 @@ public class EventServiceBean implements EventService {
         this.eventImageRepository = eventImageRepository;
         this.utilService = utilService;
         this.categoryRepository = categoryRepository;
+        this.userDetailsRepository = userDetailsRepository;
     }
 
     @Transactional
@@ -75,11 +79,20 @@ public class EventServiceBean implements EventService {
         if (eventToCreate.photos() != null) {
             List<CompletableFuture<EventImage>> futures = eventToCreate.photos().stream()
                     .map(photo -> CompletableFuture.supplyAsync(() -> {
-                        byte[] compressedImage = utilService.compressImage(photo, 0.75f); // Сжатие изображения
-                        return EventImage.builder()
-                                .image(compressedImage)
-                                .event(event)
-                                .build();
+                        try {
+                            byte[] compressedImage = utilService.compressImage(photo, 0.75f);
+                            return EventImage.builder()
+                                    .image(compressedImage)
+                                    .event(event)
+                                    .build();
+                        } catch (Exception e) {
+                            throw new CustomException("WRONG_IMAGE_FORMAT", HttpStatus.BAD_REQUEST);
+                        }
+                    }).handle((result, ex) -> {
+                        if (ex != null) {
+                            throw new CustomException("WRONG_IMAGE_FORMAT", HttpStatus.BAD_REQUEST);
+                        }
+                        return result;
                     }))
                     .toList();
 
@@ -136,11 +149,10 @@ public class EventServiceBean implements EventService {
         var user = authenticationService.getUserByToken(request);
         var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("UNAUTHORIZED", HttpStatus.UNAUTHORIZED));
         var comment = commentMapper.fromCreateCommentDto(createCommentDto);
-        comment = commentRepository.saveAndFlush(comment);
         comment.setEvent(event);
         comment.setUser(user);
         comment.setCommentDate(ZonedDateTime.now());
-        commentRepository.saveAndFlush(comment);
+        comment = commentRepository.saveAndFlush(comment);
         return new ResponseObject(HttpStatus.CREATED, "COMMENT_CREATED", authenticationService.extractRequestToken(request));
 //        } catch (Exception e) {
 //            var event = eventRepository.findById(eventId).orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
@@ -178,18 +190,18 @@ public class EventServiceBean implements EventService {
                 .toList();
         List<Event> finalEvents = events;
 
-        response.forEach(r -> {
-            List<CompletableFuture<Void>> futures = r.getEventImages().stream()
-                    .map(p -> CompletableFuture.runAsync(() -> p.setImage(utilService.decompressImage(p.getImage()))))
-                    .toList();
-
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        });
+//        response.forEach(r -> {
+//            List<CompletableFuture<Void>> futures = r.getEventImages().stream()
+//                    .map(p -> CompletableFuture.runAsync(() -> p.setImage(utilService.decompressImage(p.getImage()))))
+//                    .toList();
+//
+//            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+//        });
 
         response.forEach(r -> {
             for (var event : finalEvents) {
                 if (event.getId().equals(r.getId())) {
-                    r.setNumberOfMembers(event.getMembers().size());
+                    r.setNumberOfMembers(event.getMembers().stream().filter(member -> !member.getStatus().equals(AppMemberStatus.STATUS_INACTIVE)).toList().size());
                     var categories = event.getCategories().stream().map(EventCategory::getName).toList();
                     r.setCategories(categories);
                     var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
@@ -217,7 +229,9 @@ public class EventServiceBean implements EventService {
         var response = eventMapper.toCertainEventDto(event);
         var host = memberRepository.findEventHost(id)
                 .orElseThrow(() -> new CustomException("NOT_FOUND", HttpStatus.NOT_FOUND));
-        var responseHost = new Host(host.getUser().getId(), host.getUser().getUserDetails().getName(), host.getUser().getUserDetails().getLastName());
+        var userDetails=userDetailsRepository.findByUserId(host.getUser().getId()).orElseThrow();
+        var responseHost = new Host(host.getUser().getId(), userDetails.getName(), userDetails.getLastName());
+        //TODO
         response.setHost(responseHost);
         response.setNumberOfMembers(event.getMembers().size());
         var categories = event.getCategories().stream().map(EventCategory::getName).toList();
@@ -244,9 +258,8 @@ public class EventServiceBean implements EventService {
     @Override
     @Transactional
     public List<CommentDto> getCommentsForCertainEvent(UUID eventId) {
-        var event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new CustomException("EVENT_NOT_FOUND", HttpStatus.NOT_FOUND));
-        return commentMapper.toCommentDtoList(event.getComments().stream().toList());
+        var comments = commentRepository.findCommentsByEventId(eventId);
+        return commentMapper.toCommentDtoList(comments);
     }
 
     @Override
@@ -305,7 +318,7 @@ public class EventServiceBean implements EventService {
 
     @Override
     @Transactional
-    public Integer getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO) {
+    public NumberOfPages getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO) {
         List<Event> events;
         if (searchEventDTO.startDate() != null) {
             events = eventRepository.findEventsWithinRadius(searchEventDTO.latitude(), searchEventDTO.longitude(), searchEventDTO.radius(), searchEventDTO.startDate());
@@ -323,17 +336,19 @@ public class EventServiceBean implements EventService {
             events = events.stream().filter(e -> e.getName().contains(searchEventDTO.eventName())).toList();
         }
         int totalEvents = events.size();
-        return (int) Math.ceil((double) totalEvents / numberOfEventOnPage);
+        return new NumberOfPages((int) Math.ceil((double) totalEvents / numberOfEventOnPage));
     }
 
     @Override
     @Transactional
     public List<EventDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
         Page<Event> eventPage;
-        List<Event> result;
+        List<Event> result=null;
         List<EventDto> response;
+        Page<Event> finalEventPage;
         if (searchEventDTO.startDate() != null) {
+
             eventPage = eventRepository.findEventsWithinRadiusWithPagination(searchEventDTO.latitude(),
                     searchEventDTO.longitude(), searchEventDTO.radius(), searchEventDTO.startDate(), pageable);
             eventPage = filterByNameOfEvent(searchEventDTO, eventPage);
@@ -344,20 +359,66 @@ public class EventServiceBean implements EventService {
         }
         if (searchEventDTO.selectedCategories() != null && !searchEventDTO.selectedCategories().isEmpty()) {
             Set<String> selectedCategoryNames = new HashSet<>(searchEventDTO.selectedCategories());
+            if (result!=null && StringUtils.isNotBlank(searchEventDTO.eventName())) {
+                result = result.stream().filter(e -> e.getName().contains(searchEventDTO.eventName())).toList();
+            }
             result = eventPage.stream()
                     .filter(event -> event.getCategories().stream()
                             .anyMatch(category -> selectedCategoryNames.contains(category.getName())))
                     .toList();
         } else {
+            if (result!=null && StringUtils.isNotBlank(searchEventDTO.eventName())) {
+                result = result.stream().filter(e -> e.getName().contains(searchEventDTO.eventName())).toList();
+            }
+            finalEventPage = eventPage;
             response = eventPage.stream()
                     .map(eventMapper::eventToEventDto)
                     .collect(Collectors.toList());
+
+            response.forEach(r -> {
+                for (var event : finalEventPage) {
+                    if (event.getId().equals(r.getId())) {
+                        r.setNumberOfMembers(event.getMembers().stream().filter(member -> !member.getStatus().equals(AppMemberStatus.STATUS_INACTIVE)).toList().size());
+                        var categories = event.getCategories().stream().map(EventCategory::getName).toList();
+                        r.setCategories(categories);
+                        var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow();
+                        var userDetails=userDetailsRepository.findByUserId(host.getUser().getId()).orElseThrow();
+                        var responseHost = new Host(host.getId(), userDetails.getName(), userDetails.getLastName());
+                        r.setHost(new Host(responseHost.id(), responseHost.name(), responseHost.lastname()));
+                    }
+                }
+            });
             return getEventDtos(response);
         }
+        finalEventPage = eventPage;
         response = result.stream()
                 .map(eventMapper::eventToEventDto)
                 .toList();
 
+
+        response.forEach(r -> {
+            List<CompletableFuture<Void>> futures = r.getEventImages().stream()
+                    .map(p -> CompletableFuture.runAsync(() -> p.setImage(utilService.decompressImage(p.getImage()))))
+                    .toList();
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        });
+
+
+
+        response.forEach(r -> {
+            for (var event : finalEventPage) {
+                if (event.getId().equals(r.getId())) {
+                    r.setNumberOfMembers(event.getMembers().stream().filter(member -> !member.getStatus().equals(AppMemberStatus.STATUS_INACTIVE)).toList().size());
+                    var categories = event.getCategories().stream().map(EventCategory::getName).toList();
+                    r.setCategories(categories);
+                    var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow();
+                    var userDetails=userDetailsRepository.findByUserId(host.getUser().getId()).orElseThrow();
+                    var responseHost = new Host(host.getId(), userDetails.getName(), userDetails.getLastName());
+                    r.setHost(new Host(responseHost.id(), responseHost.name(), responseHost.lastname()));
+                }
+            }
+        });
         return getEventDtos(response);
     }
 
@@ -383,7 +444,7 @@ public class EventServiceBean implements EventService {
         response.forEach(r -> {
             for (var event : events) {
                 if (event.getId().equals(r.getId())) {
-                    r.setNumberOfMembers(event.getMembers().size());
+                    r.setNumberOfMembers(event.getMembers().stream().filter(member -> !member.getStatus().equals(AppMemberStatus.STATUS_INACTIVE)).toList().size());
                     var categories = event.getCategories().stream().map(EventCategory::getName).toList();
                     r.setCategories(categories);
                     var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
@@ -406,13 +467,17 @@ public class EventServiceBean implements EventService {
 
     @NotNull
     private List<EventDto> getEventDtos(List<EventDto> response) {
+        long startTime, endTime;
+        startTime = System.currentTimeMillis();
         response.forEach(r -> {
             List<CompletableFuture<Void>> futures = r.getEventImages().stream()
-                    .map(p -> CompletableFuture.runAsync(() -> p.setImage(utilService.decompressImage(p.getImage()))))
+                    .map(p -> CompletableFuture.runAsync(() -> p.setImage(p.getImage())))
                     .toList();
 
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         });
+        endTime = System.currentTimeMillis();
+        log.info("Time taken for pageable creation: " + (endTime - startTime) + " ms");
 
         return response;
     }

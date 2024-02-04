@@ -14,7 +14,7 @@ import java.util.UUID;
 @Repository
 public interface UserDetailsRepository extends JpaRepository<UserDetails, UUID> {
 
-    @Query(value = "select * from user_details ud right join public.users u on u.id = ud.user_id where u.id=:userId",nativeQuery = true)
+    @Query(value = "select ud.* from user_details ud right join public.users u on u.id = ud.user_id where u.id=:userId",nativeQuery = true)
     Optional<UserDetails> findByUserId(UUID userId);
 
     @Transactional

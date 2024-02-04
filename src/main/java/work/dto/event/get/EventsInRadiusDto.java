@@ -43,7 +43,7 @@ public class EventsInRadiusDto {
 
     private Integer numberOfMembers;
 
-    private List<EventImagesDto> eventImages;
+//    private List<EventImagesDto> eventImages;
 
     List<String> categories;
 
