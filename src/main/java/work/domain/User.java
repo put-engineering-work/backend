@@ -8,7 +8,9 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "index_email", columnList = "email", unique = true)
+})
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
@@ -22,7 +24,7 @@ public class User {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    @Column(unique = true)
+    @Column(name = "email", unique = true)
     private String email;
 
     private String password;

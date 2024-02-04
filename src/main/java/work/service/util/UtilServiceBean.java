@@ -49,10 +49,10 @@ public class UtilServiceBean implements UtilService {
     }
 
     public byte[] decompressImage(byte[] compressedImageData) {
-        ByteArrayInputStream inputStream = null;
-        byte[] imageBytes = null;
-        try {
-            inputStream = new ByteArrayInputStream(compressedImageData);
+        try (
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(compressedImageData);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream()
+        ) {
             ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream);
 
             Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
@@ -64,20 +64,13 @@ public class UtilServiceBean implements UtilService {
             String formatName = reader.getFormatName();
 
             BufferedImage image = ImageIO.read(imageInputStream);
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             ImageIO.write(image, formatName, outputStream);
 
-            imageBytes = outputStream.toByteArray();
-
-            inputStream.close();
-            outputStream.close();
-
+            return outputStream.toByteArray();
         } catch (Exception e) {
             System.out.println(e);
             return null;
         }
-        return imageBytes;
     }
 
     private String getFileExtension(MultipartFile file) {
