@@ -75,11 +75,20 @@ public class EventServiceBean implements EventService {
         if (eventToCreate.photos() != null) {
             List<CompletableFuture<EventImage>> futures = eventToCreate.photos().stream()
                     .map(photo -> CompletableFuture.supplyAsync(() -> {
-                        byte[] compressedImage = utilService.compressImage(photo, 0.75f); // Сжатие изображения
-                        return EventImage.builder()
-                                .image(compressedImage)
-                                .event(event)
-                                .build();
+                        try {
+                            byte[] compressedImage = utilService.compressImage(photo, 0.75f); // Сжатие изображения
+                            return EventImage.builder()
+                                    .image(compressedImage)
+                                    .event(event)
+                                    .build();
+                        } catch (Exception e) {
+                            throw new CustomException("WRONG_IMAGE_FORMAT", HttpStatus.BAD_REQUEST);
+                        }
+                    }).handle((result, ex) -> {
+                        if (ex != null) {
+                            throw new CustomException("WRONG_IMAGE_FORMAT", HttpStatus.BAD_REQUEST);
+                        }
+                        return result;
                     }))
                     .toList();
 
