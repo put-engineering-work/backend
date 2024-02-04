@@ -201,7 +201,7 @@ public class EventServiceBean implements EventService {
         response.forEach(r -> {
             for (var event : finalEvents) {
                 if (event.getId().equals(r.getId())) {
-                    r.setNumberOfMembers(event.getMembers().size());
+                    r.setNumberOfMembers(event.getMembers().stream().filter(member -> !member.getStatus().equals(AppMemberStatus.STATUS_INACTIVE)).toList().size());
                     var categories = event.getCategories().stream().map(EventCategory::getName).toList();
                     r.setCategories(categories);
                     var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
@@ -378,7 +378,7 @@ public class EventServiceBean implements EventService {
             response.forEach(r -> {
                 for (var event : finalEventPage) {
                     if (event.getId().equals(r.getId())) {
-                        r.setNumberOfMembers(event.getMembers().size());
+                        r.setNumberOfMembers(event.getMembers().stream().filter(member -> !member.getStatus().equals(AppMemberStatus.STATUS_INACTIVE)).toList().size());
                         var categories = event.getCategories().stream().map(EventCategory::getName).toList();
                         r.setCategories(categories);
                         var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow();
@@ -409,7 +409,7 @@ public class EventServiceBean implements EventService {
         response.forEach(r -> {
             for (var event : finalEventPage) {
                 if (event.getId().equals(r.getId())) {
-                    r.setNumberOfMembers(event.getMembers().size());
+                    r.setNumberOfMembers(event.getMembers().stream().filter(member -> !member.getStatus().equals(AppMemberStatus.STATUS_INACTIVE)).toList().size());
                     var categories = event.getCategories().stream().map(EventCategory::getName).toList();
                     r.setCategories(categories);
                     var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow();
@@ -444,7 +444,7 @@ public class EventServiceBean implements EventService {
         response.forEach(r -> {
             for (var event : events) {
                 if (event.getId().equals(r.getId())) {
-                    r.setNumberOfMembers(event.getMembers().size());
+                    r.setNumberOfMembers(event.getMembers().stream().filter(member -> !member.getStatus().equals(AppMemberStatus.STATUS_INACTIVE)).toList().size());
                     var categories = event.getCategories().stream().map(EventCategory::getName).toList();
                     r.setCategories(categories);
                     var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
