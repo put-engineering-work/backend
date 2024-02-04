@@ -130,7 +130,7 @@ public interface EventController {
             @ApiResponse(responseCode = "200", description = "OK")
     })
     @PostMapping("/number/{numberOfEventOnPage}")
-    NumberOfPages getNumberOfPages(@PathVariable("numberOfEventOnPage") Integer numberOfEventOnPage, SearchEventDTO searchEventDTO);
+    NumberOfPages getNumberOfPages(@PathVariable("numberOfEventOnPage") Integer numberOfEventOnPage, @RequestBody SearchEventDTO searchEventDTO);
 
 
     @Operation(summary = "Get events with pagination")
@@ -138,7 +138,7 @@ public interface EventController {
             @ApiResponse(responseCode = "200", description = "OK")
     })
     @PostMapping("/pageable/{pageSize}/{pageNumber}")
-    List<EventDto> getEventsWithPagination(@PathVariable("pageSize") Integer pageSize, @PathVariable("pageNumber") Integer pageNumber, SearchEventDTO searchEventDTO);
+    List<EventDto> getEventsWithPagination(@PathVariable("pageSize") Integer pageSize, @PathVariable("pageNumber") Integer pageNumber, @RequestBody SearchEventDTO searchEventDTO);
 
     @Operation(summary = "Get user events")
     @ApiResponses(value = {
