@@ -340,6 +340,7 @@ public class EventServiceBean implements EventService {
         Page<Event> eventPage;
         List<Event> result=null;
         List<EventDto> response;
+        Page<Event> finalEventPage;
         if (searchEventDTO.startDate() != null) {
             eventPage = eventRepository.findEventsWithinRadiusWithPagination(searchEventDTO.latitude(),
                     searchEventDTO.longitude(), searchEventDTO.radius(), searchEventDTO.startDate(), pageable);
@@ -362,11 +363,24 @@ public class EventServiceBean implements EventService {
             if (result!=null && StringUtils.isNotBlank(searchEventDTO.eventName())) {
                 result = result.stream().filter(e -> e.getName().contains(searchEventDTO.eventName())).toList();
             }
+            finalEventPage = eventPage;
             response = eventPage.stream()
                     .map(eventMapper::eventToEventDto)
                     .collect(Collectors.toList());
+            response.forEach(r -> {
+                for (var event : finalEventPage) {
+                    if (event.getId().equals(r.getId())) {
+                        r.setNumberOfMembers(event.getMembers().size());
+                        var categories = event.getCategories().stream().map(EventCategory::getName).toList();
+                        r.setCategories(categories);
+                        var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
+                        r.setHost(new Host(host.getId(), host.getUserDetails().getName(), host.getUserDetails().getLastName()));
+                    }
+                }
+            });
             return getEventDtos(response);
         }
+        finalEventPage = eventPage;
         response = result.stream()
                 .map(eventMapper::eventToEventDto)
                 .toList();
@@ -380,6 +394,18 @@ public class EventServiceBean implements EventService {
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         });
 
+
+        response.forEach(r -> {
+            for (var event : finalEventPage) {
+                if (event.getId().equals(r.getId())) {
+                    r.setNumberOfMembers(event.getMembers().size());
+                    var categories = event.getCategories().stream().map(EventCategory::getName).toList();
+                    r.setCategories(categories);
+                    var host = event.getMembers().stream().filter(f -> f.getType().equals(AppMemberType.ROLE_HOST)).findFirst().orElseThrow().getUser();
+                    r.setHost(new Host(host.getId(), host.getUserDetails().getName(), host.getUserDetails().getLastName()));
+                }
+            }
+        });
         return getEventDtos(response);
     }
 
