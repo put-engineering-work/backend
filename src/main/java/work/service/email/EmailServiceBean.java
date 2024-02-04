@@ -9,8 +9,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailServiceBean implements EmailService {
+    @Value("${is.email.sending.active}")
+    private Boolean isEmailSendingActive;
     private final JavaMailSender javaMailSender;
-    @Value("${spring.mail.username}") private String sender;
+    @Value("${spring.mail.username}")
+    private String sender;
 
     public EmailServiceBean(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
@@ -19,20 +22,20 @@ public class EmailServiceBean implements EmailService {
     @Override
     @Async
     public void emailConfirmation(EmailDetails emailDetails) {
-        try {
-            SimpleMailMessage mailMessage
-                    = new SimpleMailMessage();
+        if (isEmailSendingActive) {
+            try {
+                SimpleMailMessage mailMessage
+                        = new SimpleMailMessage();
 
-            mailMessage.setFrom(sender);
-            mailMessage.setTo(emailDetails.recipient());
-            mailMessage.setText(emailDetails.msgBody());
-            mailMessage.setSubject(emailDetails.subject());
+                mailMessage.setFrom(sender);
+                mailMessage.setTo(emailDetails.recipient());
+                mailMessage.setText(emailDetails.msgBody());
+                mailMessage.setSubject(emailDetails.subject());
 
-            javaMailSender.send(mailMessage);
-        }
+                javaMailSender.send(mailMessage);
+            } catch (Exception ignored) {
 
-        catch (Exception ignored) {
-
+            }
         }
     }
 }
