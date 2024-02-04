@@ -25,6 +25,9 @@ public class InitializerBean {
             categories.add(new EventCategory("SCIENCE"));
             categories.add(new EventCategory("MUSIC"));
             categories.add(new EventCategory("FASHION"));
+            categories.add(new EventCategory("FOOD"));
+            categories.add(new EventCategory("TRAVEL"));
+            categories.add(new EventCategory("EXPOS"));
             categoryRepository.saveAll(categories);
         }
 
