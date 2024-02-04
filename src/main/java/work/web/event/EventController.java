@@ -132,7 +132,7 @@ public interface EventController {
     Integer getNumberOfPages(@PathVariable("numberOfEventOnPage") Integer numberOfEventOnPage, SearchEventDTO searchEventDTO);
 
 
-    @Operation(summary = "Get number of pages")
+    @Operation(summary = "Get events with pagination")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK")
     })
