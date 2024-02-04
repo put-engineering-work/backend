@@ -9,6 +9,7 @@ import work.dto.event.get.SearchEventDTO;
 import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.MembersForUserDto;
 import work.dto.event.get.search.EventDto;
+import work.dto.event.get.search.NumberOfPages;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -35,7 +36,7 @@ public interface EventService {
 
     List<EventDto> getLastNEvents(Integer number);
 
-    Integer getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO);
+    NumberOfPages getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO);
 
     List<EventDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO);
 

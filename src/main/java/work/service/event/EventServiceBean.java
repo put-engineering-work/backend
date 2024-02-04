@@ -14,7 +14,6 @@ import work.domain.*;
 import work.dto.ResponseObject;
 import work.dto.event.create.CreateCommentDto;
 import work.dto.event.create.EventCreateDto;
-import work.dto.event.get.CategoriesDto;
 import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.EventsInRadiusDto;
 import work.dto.event.get.SearchEventDTO;
@@ -22,6 +21,7 @@ import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.Host;
 import work.dto.event.get.certainevent.MembersForUserDto;
 import work.dto.event.get.search.EventDto;
+import work.dto.event.get.search.NumberOfPages;
 import work.repository.*;
 import work.service.authentication.AuthenticationService;
 import work.service.geodata.GeodataService;
@@ -186,13 +186,13 @@ public class EventServiceBean implements EventService {
                 .toList();
         List<Event> finalEvents = events;
 
-        response.forEach(r -> {
-            List<CompletableFuture<Void>> futures = r.getEventImages().stream()
-                    .map(p -> CompletableFuture.runAsync(() -> p.setImage(utilService.decompressImage(p.getImage()))))
-                    .toList();
-
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        });
+//        response.forEach(r -> {
+//            List<CompletableFuture<Void>> futures = r.getEventImages().stream()
+//                    .map(p -> CompletableFuture.runAsync(() -> p.setImage(utilService.decompressImage(p.getImage()))))
+//                    .toList();
+//
+//            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+//        });
 
         response.forEach(r -> {
             for (var event : finalEvents) {
@@ -312,7 +312,7 @@ public class EventServiceBean implements EventService {
 
     @Override
     @Transactional
-    public Integer getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO) {
+    public NumberOfPages getNumberOfPages(Integer numberOfEventOnPage, SearchEventDTO searchEventDTO) {
         List<Event> events;
         if (searchEventDTO.startDate() != null) {
             events = eventRepository.findEventsWithinRadius(searchEventDTO.latitude(), searchEventDTO.longitude(), searchEventDTO.radius(), searchEventDTO.startDate());
@@ -330,7 +330,7 @@ public class EventServiceBean implements EventService {
             events = events.stream().filter(e -> e.getName().contains(searchEventDTO.eventName())).toList();
         }
         int totalEvents = events.size();
-        return (int) Math.ceil((double) totalEvents / numberOfEventOnPage);
+        return new NumberOfPages((int) Math.ceil((double) totalEvents / numberOfEventOnPage));
     }
 
     @Override

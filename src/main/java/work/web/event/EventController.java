@@ -17,6 +17,7 @@ import work.dto.event.get.certainevent.CertainEventDto;
 import work.dto.event.get.certainevent.CommentDto;
 import work.dto.event.get.certainevent.MembersForUserDto;
 import work.dto.event.get.search.EventDto;
+import work.dto.event.get.search.NumberOfPages;
 
 import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletRequest;
@@ -129,7 +130,7 @@ public interface EventController {
             @ApiResponse(responseCode = "200", description = "OK")
     })
     @PostMapping("/number/{numberOfEventOnPage}")
-    Integer getNumberOfPages(@PathVariable("numberOfEventOnPage") Integer numberOfEventOnPage, SearchEventDTO searchEventDTO);
+    NumberOfPages getNumberOfPages(@PathVariable("numberOfEventOnPage") Integer numberOfEventOnPage, SearchEventDTO searchEventDTO);
 
 
     @Operation(summary = "Get events with pagination")
