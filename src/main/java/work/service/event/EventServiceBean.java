@@ -252,7 +252,7 @@ public class EventServiceBean implements EventService {
     @Override
     @Transactional
     public List<CommentDto> getCommentsForCertainEvent(UUID eventId) {
-        var comments=commentRepository.findCommentsByEventId(eventId);
+        var comments = commentRepository.findCommentsByEventId(eventId);
         return commentMapper.toCommentDtoList(comments);
     }
 
@@ -336,9 +336,9 @@ public class EventServiceBean implements EventService {
     @Override
     @Transactional
     public List<EventDto> getEventsWithPagination(Integer pageSize, Integer pageNumber, SearchEventDTO searchEventDTO) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
         Page<Event> eventPage;
-        List<Event> result;
+        List<Event> result=null;
         List<EventDto> response;
         if (searchEventDTO.startDate() != null) {
             eventPage = eventRepository.findEventsWithinRadiusWithPagination(searchEventDTO.latitude(),
@@ -351,11 +351,17 @@ public class EventServiceBean implements EventService {
         }
         if (searchEventDTO.selectedCategories() != null && !searchEventDTO.selectedCategories().isEmpty()) {
             Set<String> selectedCategoryNames = new HashSet<>(searchEventDTO.selectedCategories());
+            if (result!=null && StringUtils.isNotBlank(searchEventDTO.eventName())) {
+                result = result.stream().filter(e -> e.getName().contains(searchEventDTO.eventName())).toList();
+            }
             result = eventPage.stream()
                     .filter(event -> event.getCategories().stream()
                             .anyMatch(category -> selectedCategoryNames.contains(category.getName())))
                     .toList();
         } else {
+            if (result!=null && StringUtils.isNotBlank(searchEventDTO.eventName())) {
+                result = result.stream().filter(e -> e.getName().contains(searchEventDTO.eventName())).toList();
+            }
             response = eventPage.stream()
                     .map(eventMapper::eventToEventDto)
                     .collect(Collectors.toList());
@@ -364,6 +370,15 @@ public class EventServiceBean implements EventService {
         response = result.stream()
                 .map(eventMapper::eventToEventDto)
                 .toList();
+
+
+        response.forEach(r -> {
+            List<CompletableFuture<Void>> futures = r.getEventImages().stream()
+                    .map(p -> CompletableFuture.runAsync(() -> p.setImage(utilService.decompressImage(p.getImage()))))
+                    .toList();
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        });
 
         return getEventDtos(response);
     }
